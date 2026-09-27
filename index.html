@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Стоматолог</title>
+<style>
+    * { box-sizing: border-box; user-select: none; margin: 0; padding: 0; }
+
+    html, body {
+        width: 100%; height: 100%;
+        overflow: hidden;
+        background: #0a0806;
+        font-family: 'Times New Roman', 'Georgia', serif;
+    }
+
+    body::before {
+        content: '';
+        position: fixed; inset: 0;
+        background:
+            radial-gradient(ellipse at 50% 30%, #2a2218 0%, #0a0806 80%),
+            repeating-linear-gradient(45deg, rgba(80,60,40,0.03) 0px, rgba(80,60,40,0.03) 2px, transparent 2px, transparent 6px);
+        z-index: 0;
+    }
+
+    #scale-wrapper {
+        position: fixed;
+        top: 50%; left: 50%;
+        transform-origin: center center;
+        transform: translate(-50%, -50%) scale(1);
+        z-index: 1;
+    }
+
+    #game-container {
+        position: relative;
+        width: 1280px;
+        height: 800px;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(180deg, #3a2d1f 0%, #241a10 100%);
+        border: 12px solid transparent;
+        border-image: linear-gradient(180deg, #8b6f3e 0%, #4a3820 30%, #6b5230 70%, #2e2210 100%) 1;
+        box-shadow:
+            0 0 0 4px #1a1208,
+            0 0 0 6px #a8873e,
+            0 0 60px rgba(0,0,0,0.9),
+            inset 0 0 80px rgba(0,0,0,0.7);
+    }
+
+    .corner {
+        position: absolute;
+        width: 34px; height: 34px;
+        background: radial-gradient(circle at 35% 30%, #d4b872 0%, #8b6f3e 40%, #4a3820 80%, #241a10 100%);
+        border-radius: 50%;
+        box-shadow: inset 0 -3px 4px rgba(0,0,0,0.8), inset 0 3px 4px rgba(255,220,150,0.4), 0 2px 6px black;
+        z-index: 100;
+        pointer-events: none;
+    }
+    .corner.tl { top: -6px; left: -6px; }
+    .corner.tr { top: -6px; right: -6px; }
+    .corner.bl { bottom: -6px; left: -6px; }
+    .corner.br { bottom: -6px; right: -6px; }
+
+    .civ-panel {
+        position: relative;
+        background: linear-gradient(180deg, rgba(60,45,28,0.98) 0%, rgba(30,22,14,0.98) 100%);
+        border: 2px solid #8b6f3e;
+        box-shadow:
+            inset 0 0 0 1px #3a2d1f,
+            inset 0 0 30px rgba(0,0,0,0.8),
+            inset 0 2px 6px rgba(255,200,120,0.1),
+            0 4px 8px rgba(0,0,0,0.7);
+        border-radius: 4px;
+        color: #e8d9b0;
+        text-shadow: 1px 1px 2px #000;
+    }
+    .civ-panel::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 3px;
+        background: linear-gradient(90deg, transparent 0%, #c9a24a 20%, #e8c874 50%, #c9a24a 80%, transparent 100%);
+        border-radius: 4px 4px 0 0;
+    }
+
+    .top-bar {
+        height: 62px;
+        margin: 10px 12px 6px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 22px;
+        background: linear-gradient(180deg, #4a3820 0%, #2a1e12 100%);
+        border: 2px solid #8b6f3e;
+        border-radius: 4px;
+        box-shadow:
+            inset 0 0 0 1px #1a1208,
+            inset 0 0 25px rgba(0,0,0,0.9),
+            inset 0 2px 4px rgba(255,200,120,0.15),
+            0 4px 10px rgba(0,0,0,0.8);
+        position: relative;
+    }
+    .top-bar::after {
+        content: '';
+        position: absolute;
+        bottom: -3px; left: 10%; right: 10%; height: 2px;
+        background: linear-gradient(90deg, transparent, #c9a24a, transparent);
+    }
+
+    .title {
+        font-size: 24px;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        color: #f0dca4;
+        font-family: 'Times New Roman', serif;
+        font-weight: bold;
+        text-shadow:
+            0 0 8px rgba(255,200,100,0.5),
+            2px 2px 0 #1a1208,
+            1px 1px 4px #000;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .title .icon {
+        font-size: 26px;
+        filter: drop-shadow(0 0 6px #ffb347);
+    }
+
+    .score-panel {
+        display: flex;
+        gap: 28px;
+        font-size: 15px;
+        font-family: 'Times New Roman', serif;
+        color: #e8d9b0;
+        background: linear-gradient(180deg, rgba(20,14,8,0.9) 0%, rgba(40,28,16,0.9) 100%);
+        padding: 7px 22px;
+        border-radius: 3px;
+        border: 2px solid #6b5230;
+        box-shadow:
+            inset 0 0 15px rgba(0,0,0,0.9),
+            inset 0 1px 3px rgba(200,160,80,0.2),
+            0 2px 4px rgba(0,0,0,0.6);
+        letter-spacing: 1px;
+    }
+    .score-panel span { white-space: nowrap; }
+    .score-panel .num {
+        color: #ffd966;
+        font-weight: bold;
+        text-shadow: 0 0 6px rgba(255,200,80,0.6);
+    }
+
+    .main-area {
+        flex: 1;
+        display: flex;
+        margin: 0 12px 8px 12px;
+        gap: 10px;
+        min-height: 0;
+    }
+
+    .toolbox {
+        width: 250px;
+        display: flex;
+        flex-direction: column;
+        padding: 12px 10px;
+        gap: 10px;
+        background: linear-gradient(180deg, #3a2d1f 0%, #1e1610 100%);
+        border: 2px solid #8b6f3e;
+        border-radius: 4px;
+        box-shadow:
+            inset 0 0 0 1px #1a1208,
+            inset 0 0 40px rgba(0,0,0,0.9),
+            inset 0 2px 6px rgba(255,200,120,0.08),
+            0 4px 10px rgba(0,0,0,0.8);
+        position: relative;
+    }
+    .toolbox::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 3px;
+        background: linear-gradient(90deg, transparent 0%, #c9a24a 20%, #e8c874 50%, #c9a24a 80%, transparent 100%);
+        border-radius: 4px 4px 0 0;
+    }
+
+    .tool-section {
+        background: linear-gradient(180deg, rgba(20,14,8,0.9) 0%, rgba(45,32,18,0.9) 100%);
+        border-radius: 3px;
+        padding: 10px 10px 6px 10px;
+        border: 2px solid #6b5230;
+        box-shadow:
+            inset 0 0 20px rgba(0,0,0,0.9),
+            inset 0 1px 2px rgba(200,160,80,0.15);
+        position: relative;
+    }
+    .tool-section h3 {
+        margin: 0 0 10px 0;
+        font-size: 13px;
+        text-transform: uppercase;
+        color: #e8c874;
+        text-align: center;
+        letter-spacing: 3px;
+        font-family: 'Times New Roman', serif;
+        font-weight: bold;
+        border-bottom: 1px solid #6b5230;
+        padding-bottom: 6px;
+        text-shadow: 1px 1px 0 #000, 0 0 8px rgba(200,160,80,0.3);
+    }
+
+    .tool-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 10px 6px;
+        margin-bottom: 8px;
+        background: linear-gradient(180deg, #a8894f 0%, #7a6238 45%, #5a4526 55%, #4a3820 100%);
+        border: 2px solid #c9a24a;
+        border-radius: 3px;
+        color: #fff4dd;
+        font-weight: bold;
+        font-size: 13px;
+        font-family: 'Times New Roman', serif;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        text-shadow: 2px 2px 0 #1a1208, 0 0 6px rgba(255,200,80,0.3);
+        box-shadow:
+            inset 0 1px 2px rgba(255,230,170,0.5),
+            inset 0 -2px 4px rgba(0,0,0,0.6),
+            0 3px 0 #1a1208,
+            0 4px 6px rgba(0,0,0,0.7);
+        cursor: pointer;
+        transition: 0.08s;
+        position: relative;
+        overflow: hidden;
+    }
+    .tool-btn::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 45%;
+        background: linear-gradient(180deg, rgba(255,240,200,0.25), transparent);
+        pointer-events: none;
+    }
+    .tool-btn:hover {
+        background: linear-gradient(180deg, #c9a24a 0%, #96793f 45%, #6b5230 55%, #5a4526 100%);
+        box-shadow:
+            inset 0 1px 2px rgba(255,230,170,0.6),
+            inset 0 -2px 4px rgba(0,0,0,0.6),
+            0 3px 0 #1a1208,
+            0 4px 10px rgba(255,200,80,0.4);
+    }
+    .tool-btn:active {
+        transform: translateY(3px);
+        box-shadow:
+            inset 0 2px 4px rgba(0,0,0,0.8),
+            0 0 0 #1a1208,
+            0 1px 3px rgba(0,0,0,0.6);
+    }
+    .tool-btn.active {
+        background: linear-gradient(180deg, #e8c874 0%, #c9a24a 45%, #a8873e 55%, #8b6f3e 100%);
+        border-color: #f0dca4;
+        color: #1a1208;
+        text-shadow: 1px 1px 0 #e8d9b0, 0 0 10px rgba(255,220,120,0.8);
+        box-shadow:
+            inset 0 1px 3px rgba(255,255,220,0.7),
+            inset 0 -2px 4px rgba(80,50,20,0.5),
+            0 3px 0 #4a3820,
+            0 0 18px rgba(255,200,80,0.7);
+    }
+
+    select {
+        width: 100%;
+        padding: 8px 6px;
+        background: linear-gradient(180deg, #2a1e12 0%, #1a1208 100%);
+        color: #f0dca4;
+        border: 2px solid #8b6f3e;
+        border-radius: 3px;
+        font-weight: bold;
+        font-size: 13px;
+        font-family: 'Times New Roman', serif;
+        outline: none;
+        cursor: pointer;
+        box-shadow:
+            inset 0 0 10px rgba(0,0,0,0.9),
+            inset 0 1px 2px rgba(200,160,80,0.2);
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    select:hover {
+        border-color: #c9a24a;
+        box-shadow:
+            inset 0 0 10px rgba(0,0,0,0.9),
+            inset 0 1px 2px rgba(200,160,80,0.3),
+            0 0 10px rgba(200,160,80,0.4);
+    }
+    select option {
+        background: #1a1208;
+        color: #f0dca4;
+        padding: 6px;
+    }
+
+    .dental-area {
+        flex: 1;
+        position: relative;
+        border-radius: 6px;
+        border: 4px solid #4a3820;
+        box-shadow:
+            inset 0 0 0 2px #8b6f3e,
+            inset 0 0 0 3px #1a1208,
+            inset 0 0 80px rgba(0,0,0,0.95),
+            0 6px 16px rgba(0,0,0,0.9);
+        overflow: hidden;
+        background: radial-gradient(ellipse 85% 65% at 50% 50%,
+                #7a3530 0%,
+                #5a221e 35%,
+                #3a1210 65%,
+                #1e0806 90%,
+                #0f0404 100%);
+    }
+    .dental-area::before {
+        content: '';
+        position: absolute; inset: 0;
+        background:
+            radial-gradient(ellipse 25% 12% at 28% 32%, rgba(255,200,170,0.12) 0%, transparent 100%),
+            radial-gradient(ellipse 22% 10% at 72% 58%, rgba(255,200,170,0.08) 0%, transparent 100%),
+            radial-gradient(circle at 50% 50%, rgba(120,30,20,0.35) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 1;
+    }
+    .dental-area::after {
+        content: '';
+        position: absolute; inset: 0;
+        background:
+            repeating-radial-gradient(circle at 20% 40%, rgba(180,60,40,0.06) 0px, transparent 3px),
+            repeating-radial-gradient(circle at 70% 70%, rgba(180,60,40,0.05) 0px, transparent 4px);
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    .mouth-container {
+        position: absolute; inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px 10px;
+    }
+
+    .teeth-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        gap: 28px;
+        position: relative;
+        z-index: 5;
+    }
+
+    .teeth-row {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 2px;
+        width: 100%;
+        padding: 0 6px;
+        position: relative;
+    }
+    .lower-row { align-items: flex-start; }
+
+    .tooth {
+        width: 44px;
+        height: 68px;
+        position: relative;
+        cursor: pointer;
+        transition: filter 0.2s, transform 0.15s;
+        z-index: 5;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.75));
+    }
+    .tooth:hover {
+        filter: drop-shadow(0 0 10px rgba(255,220,120,0.7)) drop-shadow(0 4px 6px rgba(0,0,0,0.75));
+        z-index: 15;
+    }
+
+    .tooth-body {
+        position: absolute; inset: 0;
+        background:
+            radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 35%),
+            radial-gradient(ellipse at 62% 72%, rgba(200,200,180,0.4) 0%, transparent 50%),
+            linear-gradient(160deg,
+                #faf7ee 0%,
+                #ece6d5 22%,
+                #ddd5bd 45%,
+                #cfc4a8 65%,
+                #b8ac8e 85%,
+                #a89a7c 100%);
+        box-shadow:
+            inset 0 0 10px rgba(255,255,255,0.7),
+            inset 0 -8px 12px rgba(120,100,70,0.4),
+            inset 5px 0 8px rgba(255,255,255,0.3),
+            inset -5px 0 10px rgba(90,70,50,0.3);
+        border: 1px solid rgba(140,120,90,0.6);
+    }
+    .upper-row .tooth-body {
+        border-radius: 45% 45% 25% 25% / 55% 55% 45% 45%;
+        clip-path: polygon(8% 0%, 92% 0%, 100% 35%, 96% 85%, 88% 100%, 12% 100%, 4% 85%, 0% 35%);
+    }
+    .lower-row .tooth-body {
+        border-radius: 25% 25% 45% 45% / 45% 45% 55% 55%;
+        clip-path: polygon(0% 15%, 8% 0%, 92% 0%, 100% 15%, 96% 100%, 4% 100%);
+    }
+    .tooth[data-type="incisor"] .tooth-body {
+        border-radius: 35% 35% 20% 20% / 50% 50% 40% 40%;
+    }
+    .tooth[data-type="canine"] .tooth-body {
+        clip-path: polygon(20% 0%, 80% 0%, 95% 25%, 100% 60%, 85% 100%, 15% 100%, 0% 60%, 5% 25%);
+    }
+    .tooth[data-type="molar"] .tooth-body {
+        width: 50px;
+        border-radius: 40% 40% 30% 30% / 45% 45% 45% 45%;
+    }
+    .tooth[data-type="molar"] .tooth-body::after,
+    .tooth[data-type="premolar"] .tooth-body::after {
+        content: '';
+        position: absolute;
+        top: 20%; left: 15%;
+        width: 70%; height: 40%;
+        background:
+            radial-gradient(ellipse 8px 6px at 25% 30%, rgba(100,80,50,0.5) 0%, transparent 100%),
+            radial-gradient(ellipse 8px 6px at 75% 30%, rgba(100,80,50,0.5) 0%, transparent 100%),
+            radial-gradient(ellipse 6px 4px at 50% 55%, rgba(100,80,50,0.4) 0%, transparent 100%);
+        pointer-events: none;
+    }
+
+    .tooth[data-caries="1"] .tooth-body {
+        background:
+            radial-gradient(ellipse 12px 8px at 40% 40%, rgba(60,40,20,0.55) 0%, rgba(90,60,30,0.4) 30%, transparent 70%),
+            radial-gradient(ellipse 8px 6px at 65% 60%, rgba(70,45,25,0.4) 0%, transparent 70%),
+            radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 35%),
+            linear-gradient(160deg, #f8f5ec 0%, #ece6d5 22%, #ddd5bd 45%, #cfc4a8 65%, #b8ac8e 85%, #a89a7c 100%);
+    }
+    .tooth[data-caries="2"] .tooth-body {
+        background:
+            radial-gradient(ellipse 16px 12px at 42% 45%, rgba(40,22,8,0.85) 0%, rgba(70,40,15,0.7) 35%, rgba(110,70,35,0.4) 60%, transparent 80%),
+            radial-gradient(ellipse 10px 8px at 68% 65%, rgba(50,30,10,0.6) 0%, transparent 75%),
+            radial-gradient(ellipse 6px 5px at 25% 60%, rgba(60,35,15,0.5) 0%, transparent 75%),
+            radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 35%),
+            linear-gradient(160deg, #e8e0cc 0%, #d8cfb5 25%, #c0b498 50%, #a89878 75%, #8a7a5a 100%);
+        box-shadow:
+            inset 0 0 20px rgba(40,20,0,0.5),
+            inset 0 -8px 12px rgba(60,40,20,0.5),
+            inset 5px 0 8px rgba(200,180,150,0.2);
+    }
+    .tooth[data-caries="3"] .tooth-body {
+        background:
+            radial-gradient(ellipse 20px 16px at 45% 50%, rgba(20,10,3,0.98) 0%, rgba(45,22,5,0.95) 40%, rgba(80,45,15,0.7) 65%, rgba(120,80,40,0.4) 85%, transparent 100%),
+            radial-gradient(ellipse 14px 10px at 70% 70%, rgba(30,15,5,0.85) 0%, transparent 80%),
+            radial-gradient(ellipse 10px 8px at 22% 55%, rgba(35,20,8,0.8) 0%, transparent 80%),
+            radial-gradient(ellipse 8px 6px at 55% 30%, rgba(50,30,12,0.7) 0%, transparent 75%),
+            radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 35%),
+            linear-gradient(160deg, #c8b898 0%, #a89878 25%, #887858 50%, #685840 75%, #4a3c28 100%);
+        box-shadow:
+            inset 0 0 30px rgba(10,5,0,0.9),
+            inset 0 -8px 15px rgba(20,10,0,0.8),
+            0 0 12px rgba(30,15,0,0.5);
+        border-color: rgba(50,30,15,0.9);
+    }
+    .tooth[data-drilled="1"] .tooth-body {
+        background:
+            radial-gradient(ellipse 15px 12px at 45% 50%, rgba(0,0,0,0.95) 0%, rgba(20,12,5,0.9) 40%, rgba(60,40,20,0.5) 70%, transparent 90%),
+            radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.7) 0%, transparent 35%),
+            linear-gradient(160deg, #d0c8b0 0%, #b8ac90 30%, #9a8e70 60%, #7a6e52 100%);
+        box-shadow:
+            inset 0 0 25px rgba(0,0,0,0.9),
+            inset 0 -6px 12px rgba(0,0,0,0.7);
+    }
+    .tooth.treated .tooth-body {
+        background:
+            radial-gradient(ellipse 10px 8px at 45% 55%, rgba(180,200,180,0.9) 0%, rgba(200,215,200,0.6) 40%, transparent 70%),
+            radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 35%),
+            linear-gradient(160deg, #f8f8f0 0%, #eef0e4 25%, #dde0d0 50%, #cdd0bc 75%, #bcc0a8 100%);
+        box-shadow:
+            inset 0 0 12px rgba(255,255,255,0.9),
+            inset 0 -6px 10px rgba(120,140,100,0.3),
+            0 0 8px rgba(180,220,160,0.4);
+        border-color: rgba(140,160,120,0.7);
+    }
+    .tooth.treated .tooth-body::before {
+        content: '';
+        position: absolute;
+        top: 30%; left: 30%;
+        width: 40%; height: 35%;
+        border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%;
+        background:
+            radial-gradient(ellipse at 35% 30%, rgba(255,255,255,0.7) 0%, transparent 50%),
+            linear-gradient(140deg, #b8bcc0 0%, #8a8e94 40%, #6a6e74 70%, #9a9ea4 100%);
+        box-shadow: inset 0 2px 4px rgba(255,255,255,0.5), inset 0 -3px 6px rgba(0,0,0,0.4);
+        opacity: 0.9;
+    }
+    .tooth.anesthetized {
+        filter: drop-shadow(0 0 12px #4aa8ff) drop-shadow(0 0 6px #88ccff) drop-shadow(0 4px 6px rgba(0,0,0,0.75));
+    }
+    .tooth.anesthetized .tooth-body {
+        box-shadow:
+            inset 0 0 15px rgba(100,180,255,0.4),
+            inset 0 -6px 10px rgba(60,120,180,0.4),
+            0 0 15px rgba(80,180,255,0.5);
+    }
+
+    .upper-row .tooth:nth-child(1)  { transform: rotate(-10deg) translateY(-2px); }
+    .upper-row .tooth:nth-child(2)  { transform: rotate(-8deg)  translateY(-1px); }
+    .upper-row .tooth:nth-child(3)  { transform: rotate(-6deg); }
+    .upper-row .tooth:nth-child(4)  { transform: rotate(-4deg)  translateY(1px); }
+    .upper-row .tooth:nth-child(5)  { transform: rotate(-2deg); }
+    .upper-row .tooth:nth-child(6)  { transform: rotate(0deg); }
+    .upper-row .tooth:nth-child(7)  { transform: rotate(2deg); }
+    .upper-row .tooth:nth-child(8)  { transform: rotate(4deg); }
+    .upper-row .tooth:nth-child(9)  { transform: rotate(-4deg); }
+    .upper-row .tooth:nth-child(10) { transform: rotate(-2deg); }
+    .upper-row .tooth:nth-child(11) { transform: rotate(0deg); }
+    .upper-row .tooth:nth-child(12) { transform: rotate(2deg); }
+    .upper-row .tooth:nth-child(13) { transform: rotate(4deg)   translateY(1px); }
+    .upper-row .tooth:nth-child(14) { transform: rotate(6deg); }
+    .upper-row .tooth:nth-child(15) { transform: rotate(8deg)   translateY(-1px); }
+    .upper-row .tooth:nth-child(16) { transform: rotate(10deg)  translateY(-2px); }
+
+    .lower-row .tooth:nth-child(1)  { transform: rotate(10deg)  translateY(2px); }
+    .lower-row .tooth:nth-child(2)  { transform: rotate(8deg)   translateY(1px); }
+    .lower-row .tooth:nth-child(3)  { transform: rotate(6deg); }
+    .lower-row .tooth:nth-child(4)  { transform: rotate(4deg)   translateY(-1px); }
+    .lower-row .tooth:nth-child(5)  { transform: rotate(2deg); }
+    .lower-row .tooth:nth-child(6)  { transform: rotate(0deg); }
+    .lower-row .tooth:nth-child(7)  { transform: rotate(-2deg); }
+    .lower-row .tooth:nth-child(8)  { transform: rotate(-4deg); }
+    .lower-row .tooth:nth-child(9)  { transform: rotate(4deg); }
+    .lower-row .tooth:nth-child(10) { transform: rotate(2deg); }
+    .lower-row .tooth:nth-child(11) { transform: rotate(0deg); }
+    .lower-row .tooth:nth-child(12) { transform: rotate(-2deg); }
+    .lower-row .tooth:nth-child(13) { transform: rotate(-4deg)  translateY(-1px); }
+    .lower-row .tooth:nth-child(14) { transform: rotate(-6deg); }
+    .lower-row .tooth:nth-child(15) { transform: rotate(-8deg)  translateY(1px); }
+    .lower-row .tooth:nth-child(16) { transform: rotate(-10deg) translateY(2px); }
+
+    .tooth .tooth-label {
+        position: absolute;
+        bottom: -19px; left: 50%; transform: translateX(-50%);
+        font-size: 9px;
+        font-weight: bold;
+        background: linear-gradient(180deg, rgba(30,22,14,0.95), rgba(10,8,6,0.95));
+        color: #e8c874;
+        padding: 1px 5px;
+        border-radius: 2px;
+        border: 1px solid #8b6f3e;
+        white-space: nowrap;
+        pointer-events: none;
+        display:none;
+        z-index: 20;
+        font-family: 'Times New Roman', serif;
+        text-shadow: 0 0 3px rgba(255,200,80,0.5);
+    }
+    .lower-row .tooth .tooth-label {
+        bottom: auto; top: -19px;
+    }
+
+    .tooth-info-tooltip {
+        position: absolute;
+        background: linear-gradient(180deg, #2a1e12 0%, #1a1208 100%);
+        border: 2px solid #c9a24a;
+        border-radius: 4px;
+        padding: 12px 16px;
+        color: #f0dca4;
+        font-size: 13px;
+        font-family: 'Times New Roman', serif;
+        min-width: 250px;
+        pointer-events: none;
+        box-shadow:
+            inset 0 0 0 1px #1a1208,
+            inset 0 0 25px rgba(0,0,0,0.9),
+            0 0 30px rgba(0,0,0,0.9),
+            0 0 12px rgba(200,160,80,0.3);
+        z-index: 1000;
+        text-shadow: 1px 1px 0 #000;
+        display: none;
+    }
+    .tooltip-header {
+        font-size: 15px;
+        font-weight: bold;
+        color: #ffd966;
+        border-bottom: 1px solid #8b6f3e;
+        padding-bottom: 6px;
+        margin-bottom: 8px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        text-shadow: 0 0 6px rgba(255,200,80,0.5), 1px 1px 0 #000;
+    }
+    .tooth-info-tooltip .row {
+        display: flex;
+        justify-content: space-between;
+        margin: 4px 0;
+        gap: 15px;
+    }
+    .tooth-info-tooltip .label { color: #a89572; }
+    .tooth-info-tooltip .val { color: #f0dca4; font-weight: bold; }
+    .status-good { color: #8fdc8f; }
+    .status-warn { color: #ffcc66; }
+    .status-bad { color: #ff8866; }
+    .status-treat { color: #88ccff; }
+
+    .status-bar {
+        height: 36px;
+        margin: 0 12px 10px 12px;
+        background: linear-gradient(180deg, #3a2d1f 0%, #1e1610 100%);
+        border: 2px solid #8b6f3e;
+        border-radius: 4px;
+        box-shadow:
+            inset 0 0 0 1px #1a1208,
+            inset 0 0 20px rgba(0,0,0,0.9),
+            inset 0 1px 3px rgba(200,160,80,0.15),
+            0 3px 6px rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        color: #e8d9b0;
+        font-weight: bold;
+        font-size: 13px;
+        font-family: 'Times New Roman', serif;
+        justify-content: space-between;
+        letter-spacing: 0.5px;
+        position: relative;
+    }
+    .status-bar::before {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, transparent, #c9a24a, transparent);
+    }
+
+    .toast-message {
+        position: absolute;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(180deg, rgba(60,45,28,0.98), rgba(30,22,14,0.98));
+        border: 2px solid #e8c874;
+        border-radius: 4px;
+        padding: 12px 34px;
+        color: #ffeec2;
+        font-weight: bold;
+        font-size: 16px;
+        font-family: 'Times New Roman', serif;
+        letter-spacing: 1px;
+        text-shadow: 2px 2px 0 #1a1208, 0 0 8px rgba(255,200,80,0.5);
+        box-shadow:
+            0 0 30px rgba(0,0,0,0.9),
+            0 0 20px rgba(200,160,80,0.4),
+            inset 0 1px 2px rgba(255,220,150,0.3);
+        z-index: 2000;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+    .toast-message.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="scale-wrapper">
+    <div id="game-container">
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+        <div class="top-bar civ-panel">
+            <div class="title">
+                <span class="icon">🦷</span>
+                <span>Стоматолог</span>
+            </div>
+            <div class="score-panel">
+                <span>Анестезия: <span class="num" id="anesthesia-count">0</span></span>
+                <span>Вылечено: <span class="num" id="treated-count">0</span>/32</span>
+            </div>
+        </div>
+
+        <div class="main-area">
+            <div class="toolbox">
+                <div class="tool-section">
+                    <h3>💉 Анестезия</h3>
+                    <select id="anesthetic-select">
+                        <option value="lidocaine">Лидокаин (2%)</option>
+                        <option value="articaine">Артикаин (4%)</option>
+                        <option value="mepivacaine">Мепивакаин (3%)</option>
+                        <option value="bupivacaine">Бупивакаин (0.5%)</option>
+                        <option value="prilocaine">Приилокаин (4%)</option>
+                    </select>
+                    <button class="tool-btn" id="apply-anesthesia">Ввести анестетик</button>
+                </div>
+                <div class="tool-section">
+                    <h3>🛠 Инструменты</h3>
+                    <button class="tool-btn" id="tool-drill">Бормашина</button>
+                    <button class="tool-btn" id="tool-antiseptic">Антисептик</button>
+                </div>
+                <div class="tool-section">
+                    <h3>📋 Действие</h3>
+                    <button class="tool-btn" id="tool-reset">Сбросить всё</button>
+                </div>
+            </div>
+
+            <div class="dental-area">
+                <div class="mouth-container">
+                    <div class="teeth-wrapper" id="teeth-wrapper">
+                        <div class="teeth-row upper-row" id="upper-row"></div>
+                        <div class="teeth-row lower-row" id="lower-row"></div>
+                    </div>
+                </div>
+                <div class="toast-message" id="toast"></div>
+                <div class="tooth-info-tooltip" id="tooth-tooltip">
+                    <div class="tooltip-header" id="tooltip-title">Зуб</div>
+                    <div id="tooltip-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span id="status-text">Выберите инструмент и действуйте</span>
+            <span>🔊 Звуки: вкл</span>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // ========== АВТОМАСШТАБИРОВАНИЕ ==========
+    function fitToScreen() {
+        const baseW = 1280, baseH = 800;
+        const wrapper = document.getElementById('scale-wrapper');
+        const scaleX = window.innerWidth / baseW;
+        const scaleY = window.innerHeight / baseH;
+        const scale = Math.min(scaleX, scaleY) * 0.98;
+        wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+    window.addEventListener('resize', fitToScreen);
+    window.addEventListener('orientationchange', fitToScreen);
+    fitToScreen();
+
+    // ========== ЗВУКОВАЯ СИСТЕМА (ЛЁГКАЯ, БЕЗ УТЕЧЕК) ==========
+    let audioCtx = null;
+    let noiseBufferShort = null;   // 0.5 сек шума, кэш
+    let soundsEnabled = true;
+
+    function getAudioContext() {
+        if (!audioCtx) {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                return null;
+            }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
+    // Один общий буфер шума — используется всеми звуками
+    function getNoiseBuffer(ctx) {
+        if (noiseBufferShort) return noiseBufferShort;
+        const sampleRate = ctx.sampleRate;
+        const length = Math.floor(sampleRate * 0.6);
+        const buffer = ctx.createBuffer(1, length, sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < length; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+        noiseBufferShort = buffer;
+        return buffer;
+    }
+
+    // Безопасная остановка
+    function stopLater(node, t) {
+        try {
+            node.stop(t);
+            node.onended = function() {
+                try { node.disconnect(); } catch (e) {}
+            };
+        } catch (e) {}
+    }
+
+    function playSound(type) {
+        if (!soundsEnabled) return;
+        const ctx = getAudioContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+        const master = ctx.createGain();
+        master.gain.value = 1;
+        master.connect(ctx.destination);
+
+        // Автоочистка master, чтобы не копились связи
+        setTimeout(function() {
+            try { master.disconnect(); } catch (e) {}
+        }, 1200);
+
+        try {
+            if (type === 'click') {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 2500;
+                filter.Q.value = 1.5;
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(1800, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.03);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(master);
+                osc.start(now);
+                stopLater(osc, now + 0.05);
+
+            } else if (type === 'anesthesia') {
+                // Щелчок поршня
+                const clickOsc = ctx.createOscillator();
+                const clickGain = ctx.createGain();
+                clickOsc.type = 'triangle';
+                clickOsc.frequency.setValueAtTime(1400, now);
+                clickOsc.frequency.exponentialRampToValueAtTime(400, now + 0.04);
+                clickGain.gain.setValueAtTime(0.1, now);
+                clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+                clickOsc.connect(clickGain);
+                clickGain.connect(master);
+                clickOsc.start(now);
+                stopLater(clickOsc, now + 0.06);
+
+                // Шипение впрыска
+                const noiseSource = ctx.createBufferSource();
+                noiseSource.buffer = getNoiseBuffer(ctx);
+                const noiseFilter = ctx.createBiquadFilter();
+                noiseFilter.type = 'bandpass';
+                noiseFilter.frequency.setValueAtTime(3000, now + 0.05);
+                noiseFilter.frequency.exponentialRampToValueAtTime(1200, now + 0.35);
+                noiseFilter.Q.value = 1.2;
+                const noiseGain = ctx.createGain();
+                noiseGain.gain.setValueAtTime(0.001, now + 0.05);
+                noiseGain.gain.linearRampToValueAtTime(0.05, now + 0.1);
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                noiseSource.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(master);
+                noiseSource.start(now + 0.05);
+                stopLater(noiseSource, now + 0.4);
+
+                // Низкий гул впрыска
+                const lowOsc = ctx.createOscillator();
+                const lowGain = ctx.createGain();
+                lowOsc.type = 'sine';
+                lowOsc.frequency.setValueAtTime(80, now + 0.08);
+                lowOsc.frequency.linearRampToValueAtTime(120, now + 0.3);
+                lowGain.gain.setValueAtTime(0.001, now + 0.08);
+                lowGain.gain.linearRampToValueAtTime(0.04, now + 0.12);
+                lowGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                lowOsc.connect(lowGain);
+                lowGain.connect(master);
+                lowOsc.start(now + 0.08);
+                stopLater(lowOsc, now + 0.35);
+
+            } else if (type === 'drill') {
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 2200;
+                filter.Q.value = 1.0;
+
+                osc1.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(110, now);
+                osc1.frequency.linearRampToValueAtTime(160, now + 0.15);
+                osc1.frequency.linearRampToValueAtTime(130, now + 0.3);
+
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(55, now);
+                osc2.frequency.linearRampToValueAtTime(80, now + 0.2);
+                osc2.frequency.linearRampToValueAtTime(65, now + 0.35);
+
+                gain.gain.setValueAtTime(0.001, now);
+                gain.gain.linearRampToValueAtTime(0.05, now + 0.05);
+                gain.gain.setValueAtTime(0.05, now + 0.25);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+                osc1.connect(filter);
+                osc2.connect(filter);
+                filter.connect(gain);
+                gain.connect(master);
+                osc1.start(now);
+                osc2.start(now);
+                stopLater(osc1, now + 0.4);
+                stopLater(osc2, now + 0.4);
+
+                // Шумовой слой сверления
+                const noiseSource = ctx.createBufferSource();
+                noiseSource.buffer = getNoiseBuffer(ctx);
+                const noiseFilter = ctx.createBiquadFilter();
+                noiseFilter.type = 'highpass';
+                noiseFilter.frequency.value = 2000;
+                const noiseGain = ctx.createGain();
+                noiseGain.gain.setValueAtTime(0.001, now);
+                noiseGain.gain.linearRampToValueAtTime(0.025, now + 0.05);
+                noiseGain.gain.setValueAtTime(0.025, now + 0.25);
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                noiseSource.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(master);
+                noiseSource.start(now);
+                stopLater(noiseSource, now + 0.4);
+
+            } else if (type === 'antiseptic') {
+                const noiseSource = ctx.createBufferSource();
+                noiseSource.buffer = getNoiseBuffer(ctx);
+                const noiseFilter = ctx.createBiquadFilter();
+                noiseFilter.type = 'bandpass';
+                noiseFilter.frequency.setValueAtTime(1800, now);
+                noiseFilter.frequency.linearRampToValueAtTime(4000, now + 0.15);
+                noiseFilter.frequency.linearRampToValueAtTime(2500, now + 0.4);
+                noiseFilter.Q.value = 0.8;
+                const noiseGain = ctx.createGain();
+                noiseGain.gain.setValueAtTime(0.001, now);
+                noiseGain.gain.linearRampToValueAtTime(0.045, now + 0.08);
+                noiseGain.gain.setValueAtTime(0.045, now + 0.3);
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                noiseSource.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(master);
+                noiseSource.start(now);
+                stopLater(noiseSource, now + 0.5);
+
+                // Капли
+                for (let i = 0; i < 3; i++) {
+                    const t = now + 0.1 + i * 0.12;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(900 + i * 200, t);
+                    osc.frequency.exponentialRampToValueAtTime(300, t + 0.04);
+                    gain.gain.setValueAtTime(0.035, t);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+                    osc.connect(gain);
+                    gain.connect(master);
+                    osc.start(t);
+                    stopLater(osc, t + 0.05);
+                }
+
+            } else if (type === 'error') {
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc1.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(180, now);
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(190, now);
+                gain.gain.setValueAtTime(0.04, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(master);
+                osc1.start(now);
+                osc2.start(now);
+                stopLater(osc1, now + 0.25);
+                stopLater(osc2, now + 0.25);
+
+            } else if (type === 'success') {
+                const notes = [523.25, 659.25, 783.99];
+                for (let i = 0; i < notes.length; i++) {
+                    const t = now + i * 0.06;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(notes[i], t);
+                    gain.gain.setValueAtTime(0.001, t);
+                    gain.gain.linearRampToValueAtTime(0.035, t + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+                    osc.connect(gain);
+                    gain.connect(master);
+                    osc.start(t);
+                    stopLater(osc, t + 0.4);
+                }
+            }
+        } catch (err) {
+            console.warn('Sound error:', err);
+        }
+    }
+
+    // ========== ДАННЫЕ ЗУБОВ ==========
+    const upperOrder = [
+        { id: '28', name: 'Левый третий моляр', type: 'molar', quadrant: 'верхний левый', fdi: 28 },
+        { id: '27', name: 'Левый второй моляр', type: 'molar', quadrant: 'верхний левый', fdi: 27 },
+        { id: '26', name: 'Левый первый моляр', type: 'molar', quadrant: 'верхний левый', fdi: 26 },
+        { id: '25', name: 'Левый второй премоляр', type: 'premolar', quadrant: 'верхний левый', fdi: 25 },
+        { id: '24', name: 'Левый первый премоляр', type: 'premolar', quadrant: 'верхний левый', fdi: 24 },
+        { id: '23', name: 'Левый клык', type: 'canine', quadrant: 'верхний левый', fdi: 23 },
+        { id: '22', name: 'Левый боковой резец', type: 'incisor', quadrant: 'верхний левый', fdi: 22 },
+        { id: '21', name: 'Левый центральный резец', type: 'incisor', quadrant: 'верхний левый', fdi: 21 },
+        { id: '11', name: 'Правый центральный резец', type: 'incisor', quadrant: 'верхний правый', fdi: 11 },
+        { id: '12', name: 'Правый боковой резец', type: 'incisor', quadrant: 'верхний правый', fdi: 12 },
+        { id: '13', name: 'Правый клык', type: 'canine', quadrant: 'верхний правый', fdi: 13 },
+        { id: '14', name: 'Правый первый премоляр', type: 'premolar', quadrant: 'верхний правый', fdi: 14 },
+        { id: '15', name: 'Правый второй премоляр', type: 'premolar', quadrant: 'верхний правый', fdi: 15 },
+        { id: '16', name: 'Правый первый моляр', type: 'molar', quadrant: 'верхний правый', fdi: 16 },
+        { id: '17', name: 'Правый второй моляр', type: 'molar', quadrant: 'верхний правый', fdi: 17 },
+        { id: '18', name: 'Правый третий моляр', type: 'molar', quadrant: 'верхний правый', fdi: 18 }
+    ];
+    const lowerOrder = [
+        { id: '48', name: 'Правый третий моляр', type: 'molar', quadrant: 'нижний правый', fdi: 48 },
+        { id: '47', name: 'Правый второй моляр', type: 'molar', quadrant: 'нижний правый', fdi: 47 },
+        { id: '46', name: 'Правый первый моляр', type: 'molar', quadrant: 'нижний правый', fdi: 46 },
+        { id: '45', name: 'Правый второй премоляр', type: 'premolar', quadrant: 'нижний правый', fdi: 45 },
+        { id: '44', name: 'Правый первый премоляр', type: 'premolar', quadrant: 'нижний правый', fdi: 44 },
+        { id: '43', name: 'Правый клык', type: 'canine', quadrant: 'нижний правый', fdi: 43 },
+        { id: '42', name: 'Правый боковой резец', type: 'incisor', quadrant: 'нижний правый', fdi: 42 },
+        { id: '41', name: 'Правый центральный резец', type: 'incisor', quadrant: 'нижний правый', fdi: 41 },
+        { id: '31', name: 'Левый центральный резец', type: 'incisor', quadrant: 'нижний левый', fdi: 31 },
+        { id: '32', name: 'Левый боковой резец', type: 'incisor', quadrant: 'нижний левый', fdi: 32 },
+        { id: '33', name: 'Левый клык', type: 'canine', quadrant: 'нижний левый', fdi: 33 },
+        { id: '34', name: 'Левый первый премоляр', type: 'premolar', quadrant: 'нижний левый', fdi: 34 },
+        { id: '35', name: 'Левый второй премоляр', type: 'premolar', quadrant: 'нижний левый', fdi: 35 },
+        { id: '36', name: 'Левый первый моляр', type: 'molar', quadrant: 'нижний левый', fdi: 36 },
+        { id: '37', name: 'Левый второй моляр', type: 'molar', quadrant: 'нижний левый', fdi: 37 },
+        { id: '38', name: 'Левый третий моляр', type: 'molar', quadrant: 'нижний левый', fdi: 38 }
+    ];
+
+    const toothStates = new Map();
+    function initTeethData() {
+        [...upperOrder, ...lowerOrder].forEach((tooth) => {
+            let caries = 0;
+            const rand = Math.random();
+            if (rand < 0.25) caries = 0;
+            else if (rand < 0.55) caries = 1;
+            else if (rand < 0.82) caries = 2;
+            else caries = 3;
+            const treated = Math.random() < 0.12;
+            if (treated) caries = 0;
+            toothStates.set(tooth.id, {
+                ...tooth,
+                caries, treated,
+                anesthetized: false,
+                antiseptic: false,
+                drilled: false
+            });
+        });
+    }
+    initTeethData();
+
+    // ========== ОТРИСОВКА ==========
+    const upperRowEl = document.getElementById('upper-row');
+    const lowerRowEl = document.getElementById('lower-row');
+    const tooltipEl = document.getElementById('tooth-tooltip');
+    const tooltipTitle = document.getElementById('tooltip-title');
+    const tooltipContent = document.getElementById('tooltip-content');
+    const toastEl = document.getElementById('toast');
+    const statusText = document.getElementById('status-text');
+    const anesthesiaCountSpan = document.getElementById('anesthesia-count');
+    const treatedCountSpan = document.getElementById('treated-count');
+
+    let currentTool = null;
+    let selectedAnesthetic = 'lidocaine';
+    let anesthesiaUsed = 0;
+
+    function showToast(message, isGood = true) {
+        toastEl.textContent = message;
+        toastEl.classList.add('show');
+        playSound(isGood ? 'success' : 'error');
+        setTimeout(() => toastEl.classList.remove('show'), 1800);
+    }
+    function updateTreatedCount() {
+        let c = 0; toothStates.forEach(t => { if (t.treated) c++; });
+        treatedCountSpan.textContent = c;
+    }
+    function setStatus(text) { statusText.textContent = text; }
+    function getAnestheticName(k) {
+        return { lidocaine:'Лидокаин 2%', articaine:'Артикаин 4%',
+                 mepivacaine:'Мепивакаин 3%', bupivacaine:'Бупивакаин 0.5%',
+                 prilocaine:'Приилокаин 4%' }[k] || k;
+    }
+
+    function createToothElement(toothId) {
+        const state = toothStates.get(toothId);
+        const div = document.createElement('div');
+        div.className = 'tooth';
+        div.dataset.id = toothId;
+        div.dataset.type = state.type;
+        div.dataset.caries = state.treated ? '0' : state.caries;
+        if (state.treated) div.classList.add('treated');
+        if (state.anesthetized) div.classList.add('anesthetized');
+
+        const body = document.createElement('div');
+        body.className = 'tooth-body';
+        div.appendChild(body);
+
+        const label = document.createElement('span');
+        label.className = 'tooth-label';
+        label.textContent = state.fdi;
+        div.appendChild(label);
+
+        div.addEventListener('mouseenter', (e) => showTooltipForTooth(toothId, e));
+        div.addEventListener('mouseleave', () => { tooltipEl.style.display = 'none'; });
+        div.addEventListener('click', () => handleToothClick(toothId));
+        return div;
+    }
+
+    function showTooltipForTooth(toothId, event) {
+        const state = toothStates.get(toothId);
+        if (!state) return;
+        let cariesClass, cariesText;
+        if (state.treated) { cariesText = '✅ Вылечен'; cariesClass='status-good'; }
+        else if (state.caries === 0) { cariesText = '🟢 Здоров'; cariesClass='status-good'; }
+        else if (state.caries === 1) { cariesText = '🟡 Начальный кариес'; cariesClass='status-warn'; }
+        else if (state.caries === 2) { cariesText = '🟠 Средний кариес'; cariesClass='status-warn'; }
+        else { cariesText = '🔴 Глубокий кариес'; cariesClass='status-bad'; }
+
+        const anes = state.anesthetized
+            ? `<span class="val status-treat">💉 Анестезирован</span>`
+            : `<span class="val status-bad">❌ Без анестезии</span>`;
+        const antis = state.antiseptic
+            ? `<span class="val status-good">🧴 Обработан</span>`
+            : `<span class="val status-warn">❌ Не обработан</span>`;
+
+        tooltipTitle.textContent = `Зуб ${state.fdi} — ${state.name}`;
+        tooltipContent.innerHTML = `
+            <div class="row"><span class="label">Тип:</span><span class="val">${
+                state.type==='incisor'?'Резец':state.type==='canine'?'Клык':state.type==='premolar'?'Премоляр':'Моляр'
+            }</span></div>
+            <div class="row"><span class="label">Квадрант:</span><span class="val">${state.quadrant}</span></div>
+            <div class="row"><span class="label">Состояние:</span><span class="val ${cariesClass}">${cariesText}</span></div>
+            <div class="row"><span class="label">Анестезия:</span>${anes}</div>
+            <div class="row"><span class="label">Антисептик:</span>${antis}</div>
+            <div class="row" style="margin-top:6px;border-top:1px solid #5a4a3a;padding-top:6px;">
+                <span class="label">FDI:</span><span class="val">${state.fdi}</span>
+            </div>
+        `;
+
+        const rect = event.target.getBoundingClientRect();
+        const containerRect = document.getElementById('game-container').getBoundingClientRect();
+        let left = rect.right - containerRect.left + 15;
+        let top = rect.top - containerRect.top - 20;
+        if (left + 280 > containerRect.width) left = rect.left - containerRect.left - 290;
+        if (top + 220 > containerRect.height) top = containerRect.height - 240;
+        if (top < 10) top = 10;
+        tooltipEl.style.left = left + 'px';
+        tooltipEl.style.top = top + 'px';
+        tooltipEl.style.display = 'block';
+    }
+
+    function handleToothClick(toothId) {
+        const state = toothStates.get(toothId);
+        if (!state) return;
+        if (state.treated) { showToast(`Зуб ${state.fdi} уже вылечен`, false); return; }
+        if (!currentTool) { showToast('Сначала выберите инструмент', false); return; }
+
+        if (currentTool === 'anesthesia') {
+            if (state.anesthetized) { showToast('Зуб уже анестезирован', false); return; }
+            state.anesthetized = true;
+            anesthesiaUsed++;
+            anesthesiaCountSpan.textContent = anesthesiaUsed;
+            updateToothElement(toothId);
+            playSound('anesthesia');
+            setStatus(`Введён анестетик: ${getAnestheticName(selectedAnesthetic)}`);
+            showToast(`💉 Анестезия введена (${getAnestheticName(selectedAnesthetic)})`);
+        } else if (currentTool === 'drill') {
+            if (!state.anesthetized) { showToast('Сначала введите анестезию!', false); playSound('error'); return; }
+            if (state.caries === 0) { showToast('Зуб здоров, нечего сверлить', false); return; }
+            if (state.drilled) { showToast('Полость уже обработана бормашиной', false); return; }
+            state.drilled = true;
+            state.caries = 0;
+            updateToothElement(toothId);
+            playSound('drill');
+            setStatus('Бормашина: кариозные ткани удалены. Требуется антисептик');
+            showToast('🔩 Кариес удалён. Обработайте антисептиком');
+        } else if (currentTool === 'antiseptic') {
+            if (state.caries > 0) { showToast('Сначала удалите кариес бормашиной!', false); playSound('error'); return; }
+            if (!state.drilled) { showToast('Сначала просверлите зуб бормашиной!', false); playSound('error'); return; }
+            if (state.antiseptic) { showToast('Уже обработан антисептиком', false); return; }
+            state.antiseptic = true;
+            state.treated = true;
+            updateToothElement(toothId);
+            playSound('antiseptic');
+            setStatus('Обработка антисептиком завершена');
+            showToast('🧴 Обработано антисептиком. Зуб вылечен!', true);
+            updateTreatedCount();
+        }
+    }
+
+    function updateToothElement(toothId) {
+        const el = document.querySelector(`.tooth[data-id="${toothId}"]`);
+        if (!el) return;
+        const state = toothStates.get(toothId);
+        if (!state) return;
+        el.classList.toggle('treated', state.treated);
+        el.classList.toggle('anesthetized', state.anesthetized);
+        el.dataset.caries = state.treated ? '0' : state.caries;
+        if (state.drilled && !state.treated) {
+            el.dataset.drilled = '1';
+        } else {
+            delete el.dataset.drilled;
+        }
+    }
+
+    function renderTeeth() {
+        upperRowEl.innerHTML = '';
+        lowerRowEl.innerHTML = '';
+        upperOrder.forEach(t => upperRowEl.appendChild(createToothElement(t.id)));
+        lowerOrder.forEach(t => lowerRowEl.appendChild(createToothElement(t.id)));
+        updateTreatedCount();
+    }
+
+    // ========== УПРАВЛЕНИЕ ==========
+    const btnAnesthesia = document.getElementById('apply-anesthesia');
+    const btnDrill = document.getElementById('tool-drill');
+    const btnAntiseptic = document.getElementById('tool-antiseptic');
+    const btnReset = document.getElementById('tool-reset');
+    const anestheticSelect = document.getElementById('anesthetic-select');
+
+    function setActiveTool(tool) {
+        [btnAnesthesia, btnDrill, btnAntiseptic].forEach(b => b.classList.remove('active'));
+        if (tool === 'anesthesia') {
+            btnAnesthesia.classList.add('active');
+            currentTool = 'anesthesia';
+            setStatus(`Инструмент: Анестезия (${getAnestheticName(selectedAnesthetic)})`);
+        } else if (tool === 'drill') {
+            btnDrill.classList.add('active');
+            currentTool = 'drill';
+            setStatus('Инструмент: Бормашина (требуется анестезия)');
+        } else if (tool === 'antiseptic') {
+            btnAntiseptic.classList.add('active');
+            currentTool = 'antiseptic';
+            setStatus('Инструмент: Антисептик (после бормашины)');
+        } else {
+            currentTool = null;
+            setStatus('Выберите инструмент');
+        }
+    }
+
+    btnAnesthesia.addEventListener('click', () => { setActiveTool('anesthesia'); playSound('click'); });
+    btnDrill.addEventListener('click', () => { setActiveTool('drill'); playSound('click'); });
+    btnAntiseptic.addEventListener('click', () => { setActiveTool('antiseptic'); playSound('click'); });
+
+    btnReset.addEventListener('click', () => {
+        playSound('click');
+        const all = [...upperOrder, ...lowerOrder];
+        toothStates.forEach((state, id) => {
+            const tooth = all.find(t => t.id === id);
+            if (tooth) {
+                let caries = 0;
+                const rand = Math.random();
+                if (rand < 0.25) caries = 0;
+                else if (rand < 0.55) caries = 1;
+                else if (rand < 0.82) caries = 2;
+                else caries = 3;
+                const treated = Math.random() < 0.12;
+                if (treated) caries = 0;
+                state.caries = caries;
+                state.treated = treated;
+                state.anesthetized = false;
+                state.antiseptic = false;
+                state.drilled = false;
+            }
+        });
+        anesthesiaUsed = 0;
+        anesthesiaCountSpan.textContent = '0';
+        renderTeeth();
+        setActiveTool(null);
+        setStatus('Симулятор сброшен');
+        showToast('Все зубы сброшены', true);
+    });
+
+    anestheticSelect.addEventListener('change', (e) => {
+        selectedAnesthetic = e.target.value;
+        if (currentTool === 'anesthesia') {
+            setStatus(`Инструмент: Анестезия (${getAnestheticName(selectedAnesthetic)})`);
+        }
+    });
+
+    renderTeeth();
+    setActiveTool(null);
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.tooth')) tooltipEl.style.display = 'none';
+    });
+    document.body.addEventListener('click', () => {
+        getAudioContext();
+    }, { once: true });
+})();
+</script>
+</body>
+</html>
