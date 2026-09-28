@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Стоматолог</title>
 <style>
+html, body {
+    touch-action: pan-x pan-y;
+    -webkit-text-size-adjust: 100%;
+}
     * { box-sizing: border-box; user-select: none; margin: 0; padding: 0; }
 
     html, body {
@@ -172,6 +175,7 @@
             inset 0 2px 6px rgba(255,200,120,0.08),
             0 4px 10px rgba(0,0,0,0.8);
         position: relative;
+        overflow-y: auto;
     }
     .toolbox::before {
         content: '';
@@ -266,6 +270,12 @@
             0 3px 0 #4a3820,
             0 0 18px rgba(255,200,80,0.7);
     }
+    .tool-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        filter: grayscale(0.6);
+        transform: none;
+    }
 
     select {
         width: 100%;
@@ -296,6 +306,17 @@
         background: #1a1208;
         color: #f0dca4;
         padding: 6px;
+    }
+    select option:disabled {
+        color: #6a5a3a;
+    }
+
+    .anesthetic-info {
+        font-size: 11px;
+        color: #a89572;
+        text-align: center;
+        margin: -4px 0 8px 0;
+        line-height: 1.3;
     }
 
     .dental-area {
@@ -506,6 +527,95 @@
             0 0 15px rgba(80,180,255,0.5);
     }
 
+    /* Невылечиваемый зуб */
+    .tooth.unhealable .tooth-body {
+        background:
+            radial-gradient(ellipse 18px 14px at 45% 50%, rgba(10,5,2,0.98) 0%, rgba(30,15,5,0.95) 45%, rgba(60,30,10,0.7) 70%, transparent 100%),
+            radial-gradient(ellipse 12px 9px at 70% 65%, rgba(20,10,3,0.9) 0%, transparent 80%),
+            radial-gradient(ellipse 10px 8px at 25% 55%, rgba(25,12,4,0.9) 0%, transparent 80%),
+            radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.4) 0%, transparent 35%),
+            linear-gradient(160deg, #6a5a48 0%, #4a3c2c 30%, #2e2418 70%, #1a1208 100%);
+        box-shadow:
+            inset 0 0 35px rgba(0,0,0,0.95),
+            inset 0 -8px 15px rgba(0,0,0,0.9),
+            0 0 15px rgba(80,20,0,0.6);
+        border-color: rgba(60,20,10,0.9);
+    }
+    .tooth.unhealable .tooth-body::after {
+        content: '✖';
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255,80,60,0.65);
+        font-size: 28px;
+        font-weight: bold;
+        text-shadow: 0 0 8px rgba(255,60,40,0.8), 1px 1px 0 #000;
+        pointer-events: none;
+    }
+    .tooth.unhealable {
+        filter: drop-shadow(0 0 8px rgba(180,40,20,0.7)) drop-shadow(0 4px 6px rgba(0,0,0,0.75));
+    }
+
+    /* Пустое место (после удаления) */
+    .tooth.empty {
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    }
+    .tooth.empty .tooth-body {
+        background:
+            radial-gradient(ellipse 14px 10px at 50% 55%, rgba(20,10,5,0.95) 0%, rgba(50,25,12,0.8) 50%, rgba(80,40,20,0.5) 80%, transparent 100%);
+        box-shadow:
+            inset 0 0 25px rgba(0,0,0,0.95),
+            inset 0 -4px 10px rgba(0,0,0,0.9);
+        border-color: rgba(70,40,20,0.7);
+    }
+    .tooth.empty .tooth-body::after {
+        content: '';
+        position: absolute;
+        top: 50%; left: 50%;
+        width: 60%; height: 45%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background:
+            radial-gradient(ellipse at 40% 35%, rgba(120,70,40,0.5) 0%, transparent 60%),
+            radial-gradient(ellipse at 60% 70%, rgba(80,45,25,0.4) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .tooth.empty .tooth-label {
+        color: #a89572;
+    }
+    .tooth.empty:hover {
+        filter: drop-shadow(0 0 10px rgba(255,180,80,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    }
+
+    /* Запломбированное место */
+    .tooth.filled .tooth-body {
+        background:
+            radial-gradient(ellipse 10px 8px at 45% 45%, rgba(255,255,255,0.5) 0%, transparent 60%),
+            linear-gradient(160deg, #d8d8d8 0%, #b8b8b8 30%, #989898 60%, #787878 100%);
+        box-shadow:
+            inset 0 0 12px rgba(255,255,255,0.6),
+            inset 0 -6px 10px rgba(60,60,60,0.5),
+            0 0 8px rgba(200,200,200,0.3);
+        border-color: rgba(120,120,120,0.8);
+    }
+    .tooth.filled .tooth-body::before {
+        content: '';
+        position: absolute;
+        top: 25%; left: 25%;
+        width: 50%; height: 45%;
+        border-radius: 45% 55% 50% 50% / 50% 45% 55% 50%;
+        background:
+            radial-gradient(ellipse at 35% 30%, rgba(255,255,255,0.8) 0%, transparent 50%),
+            linear-gradient(140deg, #e8e8e8 0%, #c0c0c0 40%, #a0a0a0 70%, #d0d0d0 100%);
+        box-shadow: inset 0 2px 4px rgba(255,255,255,0.7), inset 0 -3px 6px rgba(0,0,0,0.3);
+        opacity: 0.95;
+    }
+    .tooth.filled {
+        filter: drop-shadow(0 0 8px rgba(200,200,200,0.5)) drop-shadow(0 4px 6px rgba(0,0,0,0.75));
+    }
+
     .upper-row .tooth:nth-child(1)  { transform: rotate(-10deg) translateY(-2px); }
     .upper-row .tooth:nth-child(2)  { transform: rotate(-8deg)  translateY(-1px); }
     .upper-row .tooth:nth-child(3)  { transform: rotate(-6deg); }
@@ -604,6 +714,7 @@
     .status-warn { color: #ffcc66; }
     .status-bad { color: #ff8866; }
     .status-treat { color: #88ccff; }
+    .status-unhealable { color: #ff5c4a; }
 
     .status-bar {
         height: 36px;
@@ -660,6 +771,328 @@
         white-space: nowrap;
     }
     .toast-message.show { opacity: 1; }
+
+    /* ===== ЭКРАН ВЫБОРА УРОВНЯ ===== */
+    .level-screen {
+        position: absolute;
+        inset: 0;
+        z-index: 3000;
+        background: linear-gradient(180deg, rgba(10,8,6,0.98) 0%, rgba(20,14,8,0.98) 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        overflow-y: auto;
+    }
+    .level-screen h1 {
+        font-size: 34px;
+        color: #f0dca4;
+        letter-spacing: 8px;
+        text-transform: uppercase;
+        text-shadow: 0 0 20px rgba(255,200,80,0.5), 3px 3px 0 #1a1208;
+        margin-bottom: 8px;
+        font-family: 'Times New Roman', serif;
+    }
+    .level-screen .subtitle {
+        color: #a89572;
+        font-size: 14px;
+        letter-spacing: 3px;
+        margin-bottom: 28px;
+        text-transform: uppercase;
+    }
+    .level-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        max-width: 1050px;
+        width: 100%;
+    }
+    .level-card {
+        background: linear-gradient(180deg, #3a2d1f 0%, #1e1610 100%);
+        border: 2px solid #8b6f3e;
+        border-radius: 6px;
+        padding: 18px 16px;
+        cursor: pointer;
+        transition: 0.15s;
+        position: relative;
+        box-shadow:
+            inset 0 0 0 1px #1a1208,
+            inset 0 0 30px rgba(0,0,0,0.8),
+            0 4px 10px rgba(0,0,0,0.7);
+        color: #e8d9b0;
+        font-family: 'Times New Roman', serif;
+    }
+    .level-card:hover {
+        border-color: #e8c874;
+        box-shadow:
+            inset 0 0 0 1px #1a1208,
+            inset 0 0 30px rgba(0,0,0,0.8),
+            0 0 20px rgba(200,160,80,0.5),
+            0 6px 14px rgba(0,0,0,0.8);
+        transform: translateY(-2px);
+    }
+    .level-card.locked {
+        opacity: 0.45;
+        cursor: not-allowed;
+        filter: grayscale(0.7);
+    }
+    .level-card.locked:hover {
+        transform: none;
+        border-color: #8b6f3e;
+        box-shadow: inset 0 0 0 1px #1a1208, inset 0 0 30px rgba(0,0,0,0.8), 0 4px 10px rgba(0,0,0,0.7);
+    }
+    .level-card.completed {
+        border-color: #8fdc8f;
+    }
+    .level-card .level-num {
+        font-size: 12px;
+        color: #a89572;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+    .level-card .level-name {
+        font-size: 17px;
+        font-weight: bold;
+        color: #ffd966;
+        text-shadow: 1px 1px 0 #000, 0 0 8px rgba(255,200,80,0.3);
+        margin-bottom: 6px;
+        letter-spacing: 1px;
+    }
+    .level-card .level-city {
+        font-size: 12px;
+        color: #c9a24a;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+    }
+    .level-card .level-desc {
+        font-size: 12px;
+        color: #a89572;
+        line-height: 1.5;
+        margin-bottom: 10px;
+        min-height: 54px;
+    }
+    .level-card .level-stats {
+        font-size: 11px;
+        color: #e8d9b0;
+        border-top: 1px solid #5a4a3a;
+        padding-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    .level-card .level-stats .hl {
+        color: #ffd966;
+        font-weight: bold;
+    }
+    .level-card .lock-icon {
+        position: absolute;
+        top: 10px; right: 12px;
+        font-size: 20px;
+        filter: drop-shadow(0 0 6px #000);
+    }
+    .level-card .check-icon {
+        position: absolute;
+        top: 10px; right: 12px;
+        font-size: 20px;
+        color: #8fdc8f;
+        filter: drop-shadow(0 0 6px rgba(140,220,140,0.6));
+    }
+
+    .global-hud {
+        position: absolute;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 500;
+        display: flex;
+        gap: 24px;
+        background: linear-gradient(180deg, rgba(30,22,14,0.95), rgba(10,8,6,0.95));
+        border: 2px solid #8b6f3e;
+        border-radius: 4px;
+        padding: 6px 22px;
+        font-family: 'Times New Roman', serif;
+        font-size: 13px;
+        color: #e8d9b0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.8);
+        letter-spacing: 1px;
+        pointer-events: none;
+    }
+    .global-hud .hl { color: #ffd966; font-weight: bold; }
+
+    .timer-bar {
+        position: absolute;
+        top: 68px;
+        left: 12px; right: 12px;
+        height: 6px;
+        background: rgba(0,0,0,0.5);
+        border-radius: 3px;
+        overflow: hidden;
+        z-index: 400;
+        display: none;
+    }
+    .timer-bar .fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4aa8ff, #88ccff);
+        transition: width 0.1s linear;
+        box-shadow: 0 0 8px rgba(80,180,255,0.8);
+    }
+/* ===== КАСТОМНАЯ ПОЛОСА ПРОКРУТКИ В СТИЛЕ ИГРЫ ===== */
+
+/* Firefox */
+.toolbox,
+.level-screen,
+.dental-area {
+    scrollbar-width: thin;
+    scrollbar-color: #c9a24a #1a1208;
+}
+
+/* WebKit (Chrome, Edge, Safari, Opera) */
+.toolbox::-webkit-scrollbar,
+.level-screen::-webkit-scrollbar,
+.dental-area::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.toolbox::-webkit-scrollbar-track,
+.level-screen::-webkit-scrollbar-track,
+.dental-area::-webkit-scrollbar-track {
+    background: linear-gradient(180deg, #1a1208 0%, #0f0a05 100%);
+    border-left: 1px solid #4a3820;
+    border-right: 1px solid #4a3820;
+    box-shadow:
+        inset 0 0 8px rgba(0,0,0,0.95),
+        inset 0 1px 2px rgba(200,160,80,0.08);
+}
+
+.toolbox::-webkit-scrollbar-thumb,
+.level-screen::-webkit-scrollbar-thumb,
+.dental-area::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg,
+        #e8c874 0%,
+        #c9a24a 25%,
+        #a8873e 50%,
+        #8b6f3e 75%,
+        #6b5230 100%);
+    border: 1px solid #4a3820;
+    border-radius: 3px;
+    box-shadow:
+        inset 0 1px 2px rgba(255,235,180,0.6),
+        inset 0 -2px 4px rgba(0,0,0,0.6),
+        0 0 6px rgba(200,160,80,0.4);
+    background-clip: padding-box;
+}
+
+.toolbox::-webkit-scrollbar-thumb:hover,
+.level-screen::-webkit-scrollbar-thumb:hover,
+.dental-area::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg,
+        #ffd966 0%,
+        #e8c874 25%,
+        #c9a24a 50%,
+        #a8873e 75%,
+        #8b6f3e 100%);
+    box-shadow:
+        inset 0 1px 3px rgba(255,245,200,0.8),
+        inset 0 -2px 4px rgba(0,0,0,0.6),
+        0 0 12px rgba(255,200,80,0.7);
+}
+
+.toolbox::-webkit-scrollbar-thumb:active,
+.level-screen::-webkit-scrollbar-thumb:active,
+.dental-area::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(180deg,
+        #c9a24a 0%,
+        #a8873e 50%,
+        #8b6f3e 100%);
+    box-shadow:
+        inset 0 2px 4px rgba(0,0,0,0.8),
+        inset 0 -1px 2px rgba(255,220,150,0.3),
+        0 0 4px rgba(200,160,80,0.5);
+}
+
+/* Уголок между вертикальным и горизонтальным скроллом */
+.toolbox::-webkit-scrollbar-corner,
+.level-screen::-webkit-scrollbar-corner,
+.dental-area::-webkit-scrollbar-corner {
+    background: #1a1208;
+    border: 1px solid #4a3820;
+}
+
+/* Кастомные стрелки (кнопки вверх/вниз) */
+.toolbox::-webkit-scrollbar-button:single-button,
+.level-screen::-webkit-scrollbar-button:single-button,
+.dental-area::-webkit-scrollbar-button:single-button {
+    background: linear-gradient(180deg, #4a3820 0%, #2a1e12 100%);
+    border: 1px solid #6b5230;
+    height: 14px;
+    width: 12px;
+    box-shadow:
+        inset 0 1px 2px rgba(255,220,150,0.2),
+        inset 0 -1px 2px rgba(0,0,0,0.6);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 8px 8px;
+}
+
+.toolbox::-webkit-scrollbar-button:single-button:hover,
+.level-screen::-webkit-scrollbar-button:single-button:hover,
+.dental-area::-webkit-scrollbar-button:single-button:hover {
+    background: linear-gradient(180deg, #8b6f3e 0%, #4a3820 100%);
+    box-shadow:
+        inset 0 1px 2px rgba(255,220,150,0.4),
+        inset 0 -1px 2px rgba(0,0,0,0.6),
+        0 0 8px rgba(200,160,80,0.5);
+}
+
+/* Стрелка вверх */
+.toolbox::-webkit-scrollbar-button:single-button:vertical:decrement,
+.level-screen::-webkit-scrollbar-button:single-button:vertical:decrement,
+.dental-area::-webkit-scrollbar-button:single-button:vertical:decrement {
+    background-image:
+        linear-gradient(45deg, transparent 45%, #e8c874 45%, #e8c874 55%, transparent 55%),
+        linear-gradient(-45deg, transparent 45%, #e8c874 45%, #e8c874 55%, transparent 55%);
+    background-size: 4px 4px, 4px 4px;
+    background-position: 4px 6px, 6px 6px;
+    background-repeat: no-repeat;
+}
+
+/* Стрелка вниз */
+.toolbox::-webkit-scrollbar-button:single-button:vertical:increment,
+.level-screen::-webkit-scrollbar-button:single-button:vertical:increment,
+.dental-area::-webkit-scrollbar-button:single-button:vertical:increment {
+    background-image:
+        linear-gradient(45deg, transparent 45%, #e8c874 45%, #e8c874 55%, transparent 55%),
+        linear-gradient(-45deg, transparent 45%, #e8c874 45%, #e8c874 55%, transparent 55%);
+    background-size: 4px 4px, 4px 4px;
+    background-position: 4px 4px, 6px 4px;
+    background-repeat: no-repeat;
+}
+
+/* Горизонтальные стрелки (на случай, если появится горизонтальный скролл) */
+.toolbox::-webkit-scrollbar-button:single-button:horizontal:decrement,
+.level-screen::-webkit-scrollbar-button:single-button:horizontal:decrement,
+.dental-area::-webkit-scrollbar-button:single-button:horizontal:decrement {
+    background-image:
+        linear-gradient(45deg, transparent 45%, #e8c874 45%, #e8c874 55%, transparent 55%),
+        linear-gradient(135deg, transparent 45%, #e8c874 45%, #e8c874 55%, transparent 55%);
+    background-size: 4px 4px, 4px 4px;
+    background-position: 5px 4px, 3px 4px;
+    background-repeat: no-repeat;
+}
+
+.toolbox::-webkit-scrollbar-button:single-button:horizontal:increment,
+.level-screen::-webkit-scrollbar-button:single-button:horizontal:increment,
+.dental-area::-webkit-scrollbar-button:single-button:horizontal:increment {
+    background-image:
+        linear-gradient(-45deg, transparent 45%, #e8c874 45%, #e8c874 55%, transparent 55%),
+        linear-gradient(-135deg, transparent 45%, #e8c874 45%, #e8c874 55%, transparent 55%);
+    background-size: 4px 4px, 4px 4px;
+    background-position: 5px 4px, 3px 4px;
+    background-repeat: no-repeat;
+}
 </style>
 </head>
 <body>
@@ -671,14 +1104,23 @@
         <div class="corner bl"></div>
         <div class="corner br"></div>
 
+        <!-- ЭКРАН ВЫБОРА УРОВНЯ -->
+        <div class="level-screen" id="level-screen">
+            <h1>🦷 Стоматолог</h1>
+            <div class="subtitle">Выберите стоматологическую больницу</div>
+            <div class="level-grid" id="level-grid"></div>
+        </div>
+
+        <!-- ИГРОВОЙ ИНТЕРФЕЙС -->
         <div class="top-bar civ-panel">
             <div class="title">
                 <span class="icon">🦷</span>
-                <span>Стоматолог</span>
+                <span id="hospital-title">Стоматолог</span>
             </div>
             <div class="score-panel">
                 <span>Анестезия: <span class="num" id="anesthesia-count">0</span></span>
-                <span>Вылечено: <span class="num" id="treated-count">0</span>/32</span>
+                <span>Вылечено: <span class="num" id="treated-count">0</span>/<span id="goal-count">1</span></span>
+                <span>💰 <span class="num" id="money-count">0</span></span>
             </div>
         </div>
 
@@ -686,27 +1128,32 @@
             <div class="toolbox">
                 <div class="tool-section">
                     <h3>💉 Анестезия</h3>
-                    <select id="anesthetic-select">
-                        <option value="lidocaine">Лидокаин (2%)</option>
-                        <option value="articaine">Артикаин (4%)</option>
-                        <option value="mepivacaine">Мепивакаин (3%)</option>
-                        <option value="bupivacaine">Бупивакаин (0.5%)</option>
-                        <option value="prilocaine">Приилокаин (4%)</option>
-                    </select>
+                    <select id="anesthetic-select"></select>
+                    <div class="anesthetic-info" id="anesthetic-info"></div>
                     <button class="tool-btn" id="apply-anesthesia">Ввести анестетик</button>
+                    <button class="tool-btn" id="buy-anesthetic">Купить (💰 10)</button>
                 </div>
                 <div class="tool-section">
                     <h3>🛠 Инструменты</h3>
                     <button class="tool-btn" id="tool-drill">Бормашина</button>
                     <button class="tool-btn" id="tool-antiseptic">Антисептик</button>
+                    <button class="tool-btn" id="tool-extract">Удаление</button>
+                    <button class="tool-btn" id="tool-fill">Пломба</button>
                 </div>
                 <div class="tool-section">
                     <h3>📋 Действие</h3>
                     <button class="tool-btn" id="tool-reset">Сбросить всё</button>
+                    <button class="tool-btn" id="back-to-levels">← К уровням</button>
                 </div>
             </div>
 
             <div class="dental-area">
+                <div class="global-hud">
+                    <span>Уровень: <span class="hl" id="hud-level">1</span></span>
+                    <span>Цель: <span class="hl" id="hud-goal">1</span> пациентов</span>
+                    <span>Осталось анестетиков: <span class="hl" id="hud-anes-left">0</span></span>
+                </div>
+                <div class="timer-bar" id="timer-bar"><div class="fill" id="timer-fill"></div></div>
                 <div class="mouth-container">
                     <div class="teeth-wrapper" id="teeth-wrapper">
                         <div class="teeth-row upper-row" id="upper-row"></div>
@@ -730,6 +1177,35 @@
 
 <script>
 (function() {
+
+// Запрет масштабирования
+document.addEventListener('wheel', function(e) {
+    if (e.ctrlKey) e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) {
+        e.preventDefault();
+    }
+});
+
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
+document.addEventListener('gestureend', function(e) { e.preventDefault(); });
+
+// Двойной тап на тач-устройствах
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) e.preventDefault();
+    lastTouchEnd = now;
+}, { passive: false });
+
     // ========== АВТОМАСШТАБИРОВАНИЕ ==========
     function fitToScreen() {
         const baseW = 1280, baseH = 800;
@@ -743,254 +1219,219 @@
     window.addEventListener('orientationchange', fitToScreen);
     fitToScreen();
 
-    // ========== ЗВУКОВАЯ СИСТЕМА (ЛЁГКАЯ, БЕЗ УТЕЧЕК) ==========
+    // ========== ЗВУК ==========
     let audioCtx = null;
-    let noiseBufferShort = null;   // 0.5 сек шума, кэш
+    let noiseBufferShort = null;
     let soundsEnabled = true;
 
     function getAudioContext() {
         if (!audioCtx) {
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            } catch (e) {
-                return null;
-            }
+            try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+            catch (e) { return null; }
         }
-        if (audioCtx && audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
         return audioCtx;
     }
-
-    // Один общий буфер шума — используется всеми звуками
     function getNoiseBuffer(ctx) {
         if (noiseBufferShort) return noiseBufferShort;
         const sampleRate = ctx.sampleRate;
         const length = Math.floor(sampleRate * 0.6);
         const buffer = ctx.createBuffer(1, length, sampleRate);
         const data = buffer.getChannelData(0);
-        for (let i = 0; i < length; i++) {
-            data[i] = Math.random() * 2 - 1;
-        }
+        for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
         noiseBufferShort = buffer;
         return buffer;
     }
-
-    // Безопасная остановка
     function stopLater(node, t) {
         try {
             node.stop(t);
-            node.onended = function() {
-                try { node.disconnect(); } catch (e) {}
-            };
+            node.onended = function() { try { node.disconnect(); } catch (e) {} };
         } catch (e) {}
     }
-
     function playSound(type) {
         if (!soundsEnabled) return;
         const ctx = getAudioContext();
         if (!ctx) return;
-
         const now = ctx.currentTime;
         const master = ctx.createGain();
         master.gain.value = 1;
         master.connect(ctx.destination);
-
-        // Автоочистка master, чтобы не копились связи
-        setTimeout(function() {
-            try { master.disconnect(); } catch (e) {}
-        }, 1200);
-
+        setTimeout(function() { try { master.disconnect(); } catch (e) {} }, 1200);
         try {
             if (type === 'click') {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                const filter = ctx.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.frequency.value = 2500;
-                filter.Q.value = 1.5;
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(1800, now);
-                osc.frequency.exponentialRampToValueAtTime(600, now + 0.03);
-                gain.gain.setValueAtTime(0.08, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-                osc.connect(filter);
-                filter.connect(gain);
-                gain.connect(master);
-                osc.start(now);
-                stopLater(osc, now + 0.05);
-
+                const osc = ctx.createOscillator(); const gain = ctx.createGain(); const filter = ctx.createBiquadFilter();
+                filter.type='bandpass'; filter.frequency.value=2500; filter.Q.value=1.5;
+                osc.type='square'; osc.frequency.setValueAtTime(1800,now); osc.frequency.exponentialRampToValueAtTime(600,now+0.03);
+                gain.gain.setValueAtTime(0.08,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.05);
+                osc.connect(filter); filter.connect(gain); gain.connect(master); osc.start(now); stopLater(osc,now+0.05);
             } else if (type === 'anesthesia') {
-                // Щелчок поршня
-                const clickOsc = ctx.createOscillator();
-                const clickGain = ctx.createGain();
-                clickOsc.type = 'triangle';
-                clickOsc.frequency.setValueAtTime(1400, now);
-                clickOsc.frequency.exponentialRampToValueAtTime(400, now + 0.04);
-                clickGain.gain.setValueAtTime(0.1, now);
-                clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-                clickOsc.connect(clickGain);
-                clickGain.connect(master);
-                clickOsc.start(now);
-                stopLater(clickOsc, now + 0.06);
-
-                // Шипение впрыска
-                const noiseSource = ctx.createBufferSource();
-                noiseSource.buffer = getNoiseBuffer(ctx);
-                const noiseFilter = ctx.createBiquadFilter();
-                noiseFilter.type = 'bandpass';
-                noiseFilter.frequency.setValueAtTime(3000, now + 0.05);
-                noiseFilter.frequency.exponentialRampToValueAtTime(1200, now + 0.35);
-                noiseFilter.Q.value = 1.2;
-                const noiseGain = ctx.createGain();
-                noiseGain.gain.setValueAtTime(0.001, now + 0.05);
-                noiseGain.gain.linearRampToValueAtTime(0.05, now + 0.1);
-                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-                noiseSource.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(master);
-                noiseSource.start(now + 0.05);
-                stopLater(noiseSource, now + 0.4);
-
-                // Низкий гул впрыска
-                const lowOsc = ctx.createOscillator();
-                const lowGain = ctx.createGain();
-                lowOsc.type = 'sine';
-                lowOsc.frequency.setValueAtTime(80, now + 0.08);
-                lowOsc.frequency.linearRampToValueAtTime(120, now + 0.3);
-                lowGain.gain.setValueAtTime(0.001, now + 0.08);
-                lowGain.gain.linearRampToValueAtTime(0.04, now + 0.12);
-                lowGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-                lowOsc.connect(lowGain);
-                lowGain.connect(master);
-                lowOsc.start(now + 0.08);
-                stopLater(lowOsc, now + 0.35);
-
+                const clickOsc = ctx.createOscillator(); const clickGain = ctx.createGain();
+                clickOsc.type='triangle'; clickOsc.frequency.setValueAtTime(1400,now); clickOsc.frequency.exponentialRampToValueAtTime(400,now+0.04);
+                clickGain.gain.setValueAtTime(0.1,now); clickGain.gain.exponentialRampToValueAtTime(0.001,now+0.06);
+                clickOsc.connect(clickGain); clickGain.connect(master); clickOsc.start(now); stopLater(clickOsc,now+0.06);
+                const noiseSource = ctx.createBufferSource(); noiseSource.buffer = getNoiseBuffer(ctx);
+                const noiseFilter = ctx.createBiquadFilter(); noiseFilter.type='bandpass';
+                noiseFilter.frequency.setValueAtTime(3000,now+0.05); noiseFilter.frequency.exponentialRampToValueAtTime(1200,now+0.35); noiseFilter.Q.value=1.2;
+                const noiseGain = ctx.createGain(); noiseGain.gain.setValueAtTime(0.001,now+0.05); noiseGain.gain.linearRampToValueAtTime(0.05,now+0.1); noiseGain.gain.exponentialRampToValueAtTime(0.001,now+0.4);
+                noiseSource.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(master); noiseSource.start(now+0.05); stopLater(noiseSource,now+0.4);
+                const lowOsc = ctx.createOscillator(); const lowGain = ctx.createGain();
+                lowOsc.type='sine'; lowOsc.frequency.setValueAtTime(80,now+0.08); lowOsc.frequency.linearRampToValueAtTime(120,now+0.3);
+                lowGain.gain.setValueAtTime(0.001,now+0.08); lowGain.gain.linearRampToValueAtTime(0.04,now+0.12); lowGain.gain.exponentialRampToValueAtTime(0.001,now+0.35);
+                lowOsc.connect(lowGain); lowGain.connect(master); lowOsc.start(now+0.08); stopLater(lowOsc,now+0.35);
             } else if (type === 'drill') {
-                const osc1 = ctx.createOscillator();
-                const osc2 = ctx.createOscillator();
-                const gain = ctx.createGain();
-                const filter = ctx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.value = 2200;
-                filter.Q.value = 1.0;
-
-                osc1.type = 'sawtooth';
-                osc1.frequency.setValueAtTime(110, now);
-                osc1.frequency.linearRampToValueAtTime(160, now + 0.15);
-                osc1.frequency.linearRampToValueAtTime(130, now + 0.3);
-
-                osc2.type = 'square';
-                osc2.frequency.setValueAtTime(55, now);
-                osc2.frequency.linearRampToValueAtTime(80, now + 0.2);
-                osc2.frequency.linearRampToValueAtTime(65, now + 0.35);
-
-                gain.gain.setValueAtTime(0.001, now);
-                gain.gain.linearRampToValueAtTime(0.05, now + 0.05);
-                gain.gain.setValueAtTime(0.05, now + 0.25);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-
-                osc1.connect(filter);
-                osc2.connect(filter);
-                filter.connect(gain);
-                gain.connect(master);
-                osc1.start(now);
-                osc2.start(now);
-                stopLater(osc1, now + 0.4);
-                stopLater(osc2, now + 0.4);
-
-                // Шумовой слой сверления
-                const noiseSource = ctx.createBufferSource();
-                noiseSource.buffer = getNoiseBuffer(ctx);
-                const noiseFilter = ctx.createBiquadFilter();
-                noiseFilter.type = 'highpass';
-                noiseFilter.frequency.value = 2000;
-                const noiseGain = ctx.createGain();
-                noiseGain.gain.setValueAtTime(0.001, now);
-                noiseGain.gain.linearRampToValueAtTime(0.025, now + 0.05);
-                noiseGain.gain.setValueAtTime(0.025, now + 0.25);
-                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-                noiseSource.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(master);
-                noiseSource.start(now);
-                stopLater(noiseSource, now + 0.4);
-
+                const osc1 = ctx.createOscillator(); const osc2 = ctx.createOscillator(); const gain = ctx.createGain(); const filter = ctx.createBiquadFilter();
+                filter.type='lowpass'; filter.frequency.value=2200; filter.Q.value=1.0;
+                osc1.type='sawtooth'; osc1.frequency.setValueAtTime(110,now); osc1.frequency.linearRampToValueAtTime(160,now+0.15); osc1.frequency.linearRampToValueAtTime(130,now+0.3);
+                osc2.type='square'; osc2.frequency.setValueAtTime(55,now); osc2.frequency.linearRampToValueAtTime(80,now+0.2); osc2.frequency.linearRampToValueAtTime(65,now+0.35);
+                gain.gain.setValueAtTime(0.001,now); gain.gain.linearRampToValueAtTime(0.05,now+0.05); gain.gain.setValueAtTime(0.05,now+0.25); gain.gain.exponentialRampToValueAtTime(0.001,now+0.4);
+                osc1.connect(filter); osc2.connect(filter); filter.connect(gain); gain.connect(master); osc1.start(now); osc2.start(now); stopLater(osc1,now+0.4); stopLater(osc2,now+0.4);
+                const noiseSource = ctx.createBufferSource(); noiseSource.buffer = getNoiseBuffer(ctx);
+                const noiseFilter = ctx.createBiquadFilter(); noiseFilter.type='highpass'; noiseFilter.frequency.value=2000;
+                const noiseGain = ctx.createGain(); noiseGain.gain.setValueAtTime(0.001,now); noiseGain.gain.linearRampToValueAtTime(0.025,now+0.05); noiseGain.gain.setValueAtTime(0.025,now+0.25); noiseGain.gain.exponentialRampToValueAtTime(0.001,now+0.4);
+                noiseSource.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(master); noiseSource.start(now); stopLater(noiseSource,now+0.4);
             } else if (type === 'antiseptic') {
-                const noiseSource = ctx.createBufferSource();
-                noiseSource.buffer = getNoiseBuffer(ctx);
-                const noiseFilter = ctx.createBiquadFilter();
-                noiseFilter.type = 'bandpass';
-                noiseFilter.frequency.setValueAtTime(1800, now);
-                noiseFilter.frequency.linearRampToValueAtTime(4000, now + 0.15);
-                noiseFilter.frequency.linearRampToValueAtTime(2500, now + 0.4);
-                noiseFilter.Q.value = 0.8;
-                const noiseGain = ctx.createGain();
-                noiseGain.gain.setValueAtTime(0.001, now);
-                noiseGain.gain.linearRampToValueAtTime(0.045, now + 0.08);
-                noiseGain.gain.setValueAtTime(0.045, now + 0.3);
-                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-                noiseSource.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(master);
-                noiseSource.start(now);
-                stopLater(noiseSource, now + 0.5);
-
-                // Капли
-                for (let i = 0; i < 3; i++) {
-                    const t = now + 0.1 + i * 0.12;
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(900 + i * 200, t);
-                    osc.frequency.exponentialRampToValueAtTime(300, t + 0.04);
-                    gain.gain.setValueAtTime(0.035, t);
-                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
-                    osc.connect(gain);
-                    gain.connect(master);
-                    osc.start(t);
-                    stopLater(osc, t + 0.05);
-                }
-
+                const noiseSource = ctx.createBufferSource(); noiseSource.buffer = getNoiseBuffer(ctx);
+                const noiseFilter = ctx.createBiquadFilter(); noiseFilter.type='bandpass';
+                noiseFilter.frequency.setValueAtTime(1800,now); noiseFilter.frequency.linearRampToValueAtTime(4000,now+0.15); noiseFilter.frequency.linearRampToValueAtTime(2500,now+0.4); noiseFilter.Q.value=0.8;
+                const noiseGain = ctx.createGain(); noiseGain.gain.setValueAtTime(0.001,now); noiseGain.gain.linearRampToValueAtTime(0.045,now+0.08); noiseGain.gain.setValueAtTime(0.045,now+0.3); noiseGain.gain.exponentialRampToValueAtTime(0.001,now+0.5);
+                noiseSource.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(master); noiseSource.start(now); stopLater(noiseSource,now+0.5);
+                for (let i=0;i<3;i++){ const t=now+0.1+i*0.12; const osc=ctx.createOscillator(); const gain=ctx.createGain();
+                    osc.type='sine'; osc.frequency.setValueAtTime(900+i*200,t); osc.frequency.exponentialRampToValueAtTime(300,t+0.04);
+                    gain.gain.setValueAtTime(0.035,t); gain.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+                    osc.connect(gain); gain.connect(master); osc.start(t); stopLater(osc,t+0.05); }
             } else if (type === 'error') {
-                const osc1 = ctx.createOscillator();
-                const osc2 = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc1.type = 'sawtooth';
-                osc1.frequency.setValueAtTime(180, now);
-                osc2.type = 'square';
-                osc2.frequency.setValueAtTime(190, now);
-                gain.gain.setValueAtTime(0.04, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-                osc1.connect(gain);
-                osc2.connect(gain);
-                gain.connect(master);
-                osc1.start(now);
-                osc2.start(now);
-                stopLater(osc1, now + 0.25);
-                stopLater(osc2, now + 0.25);
-
+                const osc1=ctx.createOscillator(); const osc2=ctx.createOscillator(); const gain=ctx.createGain();
+                osc1.type='sawtooth'; osc1.frequency.setValueAtTime(180,now); osc2.type='square'; osc2.frequency.setValueAtTime(190,now);
+                gain.gain.setValueAtTime(0.04,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.25);
+                osc1.connect(gain); osc2.connect(gain); gain.connect(master); osc1.start(now); osc2.start(now); stopLater(osc1,now+0.25); stopLater(osc2,now+0.25);
             } else if (type === 'success') {
-                const notes = [523.25, 659.25, 783.99];
-                for (let i = 0; i < notes.length; i++) {
-                    const t = now + i * 0.06;
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(notes[i], t);
-                    gain.gain.setValueAtTime(0.001, t);
-                    gain.gain.linearRampToValueAtTime(0.035, t + 0.02);
-                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-                    osc.connect(gain);
-                    gain.connect(master);
-                    osc.start(t);
-                    stopLater(osc, t + 0.4);
-                }
+                const notes=[523.25,659.25,783.99];
+                for (let i=0;i<notes.length;i++){ const t=now+i*0.06; const osc=ctx.createOscillator(); const gain=ctx.createGain();
+                    osc.type='sine'; osc.frequency.setValueAtTime(notes[i],t);
+                    gain.gain.setValueAtTime(0.001,t); gain.gain.linearRampToValueAtTime(0.035,t+0.02); gain.gain.exponentialRampToValueAtTime(0.001,t+0.4);
+                    osc.connect(gain); gain.connect(master); osc.start(t); stopLater(osc,t+0.4); }
+            } else if (type === 'coin') {
+                const osc=ctx.createOscillator(); const gain=ctx.createGain();
+                osc.type='triangle'; osc.frequency.setValueAtTime(1200,now); osc.frequency.exponentialRampToValueAtTime(2000,now+0.08);
+                gain.gain.setValueAtTime(0.06,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.15);
+                osc.connect(gain); gain.connect(master); osc.start(now); stopLater(osc,now+0.15);
+            } else if (type === 'extract') {
+                const noiseSource = ctx.createBufferSource(); noiseSource.buffer = getNoiseBuffer(ctx);
+                const noiseFilter = ctx.createBiquadFilter(); noiseFilter.type='lowpass'; noiseFilter.frequency.setValueAtTime(800, now); noiseFilter.frequency.exponentialRampToValueAtTime(200, now+0.3);
+                const noiseGain = ctx.createGain(); noiseGain.gain.setValueAtTime(0.001, now); noiseGain.gain.linearRampToValueAtTime(0.08, now+0.05); noiseGain.gain.exponentialRampToValueAtTime(0.001, now+0.35);
+                noiseSource.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(master); noiseSource.start(now); stopLater(noiseSource, now+0.35);
+                const crackOsc = ctx.createOscillator(); const crackGain = ctx.createGain();
+                crackOsc.type='sawtooth'; crackOsc.frequency.setValueAtTime(300, now+0.08); crackOsc.frequency.exponentialRampToValueAtTime(80, now+0.25);
+                crackGain.gain.setValueAtTime(0.06, now+0.08); crackGain.gain.exponentialRampToValueAtTime(0.001, now+0.3);
+                crackOsc.connect(crackGain); crackGain.connect(master); crackOsc.start(now+0.08); stopLater(crackOsc, now+0.3);
+            } else if (type === 'fill') {
+                const osc=ctx.createOscillator(); const gain=ctx.createGain();
+                osc.type='sine'; osc.frequency.setValueAtTime(600,now); osc.frequency.exponentialRampToValueAtTime(1000,now+0.15);
+                gain.gain.setValueAtTime(0.001,now); gain.gain.linearRampToValueAtTime(0.05,now+0.05); gain.gain.exponentialRampToValueAtTime(0.001,now+0.3);
+                osc.connect(gain); gain.connect(master); osc.start(now); stopLater(osc,now+0.3);
             }
-        } catch (err) {
-            console.warn('Sound error:', err);
-        }
+        } catch (err) { console.warn('Sound error:', err); }
     }
+
+    // ========== ДАННЫЕ УРОВНЕЙ ==========
+    const LEVELS = [
+        {
+            id: 0,
+            name: 'Городская поликлиника №1',
+            city: 'Москва',
+            desc: 'Простая поликлиника. Один пациент, базовое оборудование.',
+            patientsGoal: 1,
+            startMoney: 30,
+            cariesChance: { healthy: 0.30, light: 0.30, medium: 0.25, deep: 0.15 },
+            emptyChance: 0.05,
+            unhealableChance: 0.00,
+            unlockedAnesthetics: ['lidocaine'],
+            startAnesthetics: { lidocaine: 3 },
+            reward: 50
+        },
+        {
+            id: 1,
+            name: 'Областная стоматология',
+            city: 'Санкт-Петербург',
+            desc: 'Больше пациентов, средний уровень сложности.',
+            patientsGoal: 3,
+            startMoney: 60,
+            cariesChance: { healthy: 0.20, light: 0.30, medium: 0.30, deep: 0.20 },
+            emptyChance: 0.08,
+            unhealableChance: 0.04,
+            unlockedAnesthetics: ['lidocaine', 'articaine'],
+            startAnesthetics: { lidocaine: 3, articaine: 2 },
+            reward: 100
+        },
+        {
+            id: 2,
+            name: 'Стоматологическая клиника «Улыбка»',
+            city: 'Казань',
+            desc: 'Частная клиника. Требуется больше пациентов.',
+            patientsGoal: 5,
+            startMoney: 100,
+            cariesChance: { healthy: 0.15, light: 0.25, medium: 0.30, deep: 0.30 },
+            emptyChance: 0.12,
+            unhealableChance: 0.08,
+            unlockedAnesthetics: ['lidocaine', 'articaine', 'mepivacaine'],
+            startAnesthetics: { lidocaine: 4, articaine: 3, mepivacaine: 2 },
+            reward: 200
+        },
+        {
+            id: 3,
+            name: 'Республиканская больница',
+            city: 'Екатеринбург',
+            desc: 'Сложные случаи, много пациентов.',
+            patientsGoal: 7,
+            startMoney: 150,
+            cariesChance: { healthy: 0.10, light: 0.20, medium: 0.30, deep: 0.40 },
+            emptyChance: 0.16,
+            unhealableChance: 0.12,
+            unlockedAnesthetics: ['lidocaine', 'articaine', 'mepivacaine', 'prilocaine'],
+            startAnesthetics: { lidocaine: 4, articaine: 3, mepivacaine: 3, prilocaine: 2 },
+            reward: 350
+        },
+        {
+            id: 4,
+            name: 'НИИ Стоматологии',
+            city: 'Новосибирск',
+            desc: 'Научный институт. Очень сложные пациенты.',
+            patientsGoal: 10,
+            startMoney: 250,
+            cariesChance: { healthy: 0.05, light: 0.15, medium: 0.30, deep: 0.50 },
+            emptyChance: 0.20,
+            unhealableChance: 0.16,
+            unlockedAnesthetics: ['lidocaine', 'articaine', 'mepivacaine', 'prilocaine', 'bupivacaine'],
+            startAnesthetics: { lidocaine: 5, articaine: 4, mepivacaine: 4, prilocaine: 3, bupivacaine: 2 },
+            reward: 600
+        },
+        {
+            id: 5,
+            name: 'Центр челюстно-лицевой хирургии',
+            city: 'Краснодар',
+            desc: 'Финальный вызов. Максимальная сложность.',
+            patientsGoal: 15,
+            startMoney: 400,
+            cariesChance: { healthy: 0.00, light: 0.10, medium: 0.25, deep: 0.65 },
+            emptyChance: 0.25,
+            unhealableChance: 0.22,
+            unlockedAnesthetics: ['lidocaine', 'articaine', 'mepivacaine', 'prilocaine', 'bupivacaine'],
+            startAnesthetics: { lidocaine: 6, articaine: 5, mepivacaine: 5, prilocaine: 4, bupivacaine: 3 },
+            reward: 1000
+        }
+    ];
+
+    // ========== ДАННЫЕ АНЕСТЕТИКОВ ==========
+    const ANESTHETICS = {
+        lidocaine:    { name: 'Лидокаин 2%',    duration: 5,   price: 10, color: '#4aa8ff' },
+        articaine:    { name: 'Артикаин 4%',    duration: 7.5, price: 18, color: '#4affa8' },
+        mepivacaine:  { name: 'Мепивакаин 3%',  duration: 10,  price: 25, color: '#ffa84a' },
+        prilocaine:   { name: 'Приилокаин 4%',  duration: 6.5, price: 22, color: '#a84aff' },
+        bupivacaine:  { name: 'Бупивакаин 0.5%', duration: 20, price: 40, color: '#ff4a88' }
+    };
+    const ANESTHETIC_ORDER = ['lidocaine', 'articaine', 'mepivacaine', 'prilocaine', 'bupivacaine'];
+
+    const FILL_PRICE = 0; // Стоимость одной пломбы
 
     // ========== ДАННЫЕ ЗУБОВ ==========
     const upperOrder = [
@@ -1030,29 +1471,58 @@
         { id: '38', name: 'Левый третий моляр', type: 'molar', quadrant: 'нижний левый', fdi: 38 }
     ];
 
-    const toothStates = new Map();
-    function initTeethData() {
-        [...upperOrder, ...lowerOrder].forEach((tooth) => {
-            let caries = 0;
-            const rand = Math.random();
-            if (rand < 0.25) caries = 0;
-            else if (rand < 0.55) caries = 1;
-            else if (rand < 0.82) caries = 2;
-            else caries = 3;
-            const treated = Math.random() < 0.12;
-            if (treated) caries = 0;
-            toothStates.set(tooth.id, {
-                ...tooth,
-                caries, treated,
-                anesthetized: false,
-                antiseptic: false,
-                drilled: false
-            });
+    // ========== СОСТОЯНИЕ ИГРЫ ==========
+    const game = {
+        currentLevel: 0,
+        unlockedLevels: 1,
+        completedLevels: new Set(),
+        money: 0,
+        anestheticStock: {},
+        selectedAnesthetic: 'lidocaine',
+        toothStates: new Map(),
+        anesthesiaUsed: 0,
+        treatedCount: 0,
+        patientsGoal: 1,
+        anesthesiaTimers: new Map(),
+        timerInterval: null,
+        activeTimerTooth: null,
+        gameActive: false
+    };
+
+    const toothStates = game.toothStates;
+
+    // ========== ОТРИСОВКА УРОВНЕЙ ==========
+    const levelScreen = document.getElementById('level-screen');
+    const levelGrid = document.getElementById('level-grid');
+
+    function renderLevels() {
+        levelGrid.innerHTML = '';
+        LEVELS.forEach((lvl, idx) => {
+            const unlocked = idx < game.unlockedLevels;
+            const completed = game.completedLevels.has(idx);
+            const card = document.createElement('div');
+            card.className = 'level-card' + (unlocked ? '' : ' locked') + (completed ? ' completed' : '');
+            card.innerHTML = `
+                <div class="level-num">Уровень ${idx + 1}</div>
+                <div class="level-name">${lvl.name}</div>
+                <div class="level-city">📍 ${lvl.city}</div>
+                <div class="level-desc">${lvl.desc}</div>
+                <div class="level-stats">
+                    <span>👥 Пациентов: <span class="hl">${lvl.patientsGoal}</span></span>
+                    <span>💰 Стартовый бюджет: <span class="hl">${lvl.startMoney}</span></span>
+                    <span>💉 Анестетики: <span class="hl">${lvl.unlockedAnesthetics.length}</span></span>
+                </div>
+                ${!unlocked ? '<div class="lock-icon">🔒</div>' : ''}
+                ${completed ? '<div class="check-icon">✅</div>' : ''}
+            `;
+            if (unlocked) {
+                card.addEventListener('click', () => startLevel(idx));
+            }
+            levelGrid.appendChild(card);
         });
     }
-    initTeethData();
 
-    // ========== ОТРИСОВКА ==========
+    // ========== HUD ЭЛЕМЕНТЫ ==========
     const upperRowEl = document.getElementById('upper-row');
     const lowerRowEl = document.getElementById('lower-row');
     const tooltipEl = document.getElementById('tooth-tooltip');
@@ -1062,10 +1532,18 @@
     const statusText = document.getElementById('status-text');
     const anesthesiaCountSpan = document.getElementById('anesthesia-count');
     const treatedCountSpan = document.getElementById('treated-count');
+    const goalCountSpan = document.getElementById('goal-count');
+    const moneyCountSpan = document.getElementById('money-count');
+    const hospitalTitle = document.getElementById('hospital-title');
+    const hudLevel = document.getElementById('hud-level');
+    const hudGoal = document.getElementById('hud-goal');
+    const hudAnesLeft = document.getElementById('hud-anes-left');
+    const anestheticSelect = document.getElementById('anesthetic-select');
+    const anestheticInfo = document.getElementById('anesthetic-info');
+    const timerBar = document.getElementById('timer-bar');
+    const timerFill = document.getElementById('timer-fill');
 
     let currentTool = null;
-    let selectedAnesthetic = 'lidocaine';
-    let anesthesiaUsed = 0;
 
     function showToast(message, isGood = true) {
         toastEl.textContent = message;
@@ -1073,26 +1551,75 @@
         playSound(isGood ? 'success' : 'error');
         setTimeout(() => toastEl.classList.remove('show'), 1800);
     }
-    function updateTreatedCount() {
-        let c = 0; toothStates.forEach(t => { if (t.treated) c++; });
-        treatedCountSpan.textContent = c;
-    }
     function setStatus(text) { statusText.textContent = text; }
-    function getAnestheticName(k) {
-        return { lidocaine:'Лидокаин 2%', articaine:'Артикаин 4%',
-                 mepivacaine:'Мепивакаин 3%', bupivacaine:'Бупивакаин 0.5%',
-                 prilocaine:'Приилокаин 4%' }[k] || k;
+
+    function updateCounters() {
+        anesthesiaCountSpan.textContent = game.anesthesiaUsed;
+        treatedCountSpan.textContent = game.treatedCount;
+        goalCountSpan.textContent = game.patientsGoal;
+        moneyCountSpan.textContent = game.money;
+        hudLevel.textContent = game.currentLevel + 1;
+        hudGoal.textContent = game.patientsGoal;
+        let total = 0;
+        for (const k in game.anestheticStock) total += game.anestheticStock[k];
+        hudAnesLeft.textContent = total;
     }
 
+    // ========== ГЕНЕРАЦИЯ ЗУБОВ ==========
+    function generateToothData(levelIdx) {
+        const lvl = LEVELS[levelIdx];
+        const cc = lvl.cariesChance;
+        const emptyChance = lvl.emptyChance || 0;
+        const unhealableChance = lvl.unhealableChance || 0;
+        toothStates.clear();
+        [...upperOrder, ...lowerOrder].forEach((tooth) => {
+            let state = {
+                ...tooth,
+                caries: 0,
+                treated: false,
+                anesthetized: false,
+                antiseptic: false,
+                drilled: false,
+                empty: false,
+                filled: false,
+                unhealable: false,
+                anestheticType: null
+            };
+            const r = Math.random();
+            if (r < emptyChance) {
+                // Пустое место
+                state.empty = true;
+                state.caries = 0;
+            } else {
+                // Генерация кариеса
+                const rand = Math.random();
+                if (rand < cc.healthy) state.caries = 0;
+                else if (rand < cc.healthy + cc.light) state.caries = 1;
+                else if (rand < cc.healthy + cc.light + cc.medium) state.caries = 2;
+                else state.caries = 3;
+
+                // Невылечиваемый зуб (только если есть кариес)
+                if (state.caries > 0 && Math.random() < unhealableChance) {
+                    state.unhealable = true;
+                }
+            }
+            toothStates.set(tooth.id, state);
+        });
+    }
+
+    // ========== СОЗДАНИЕ ЭЛЕМЕНТА ЗУБА ==========
     function createToothElement(toothId) {
         const state = toothStates.get(toothId);
         const div = document.createElement('div');
         div.className = 'tooth';
         div.dataset.id = toothId;
         div.dataset.type = state.type;
-        div.dataset.caries = state.treated ? '0' : state.caries;
+        div.dataset.caries = state.empty ? '0' : (state.treated ? '0' : state.caries);
         if (state.treated) div.classList.add('treated');
         if (state.anesthetized) div.classList.add('anesthetized');
+        if (state.empty) div.classList.add('empty');
+        if (state.filled) div.classList.add('filled');
+        if (state.unhealable && !state.empty) div.classList.add('unhealable');
 
         const body = document.createElement('div');
         body.className = 'tooth-body';
@@ -1113,28 +1640,33 @@
         const state = toothStates.get(toothId);
         if (!state) return;
         let cariesClass, cariesText;
-        if (state.treated) { cariesText = '✅ Вылечен'; cariesClass='status-good'; }
+        if (state.empty) { cariesText = '⚪ Пустое место'; cariesClass = 'status-warn'; }
+        else if (state.filled) { cariesText = '⚙️ Пломба'; cariesClass = 'status-good'; }
+        else if (state.treated) { cariesText = '✅ Вылечен'; cariesClass='status-good'; }
+        else if (state.unhealable) { cariesText = '⛔ Невылечиваемый'; cariesClass='status-unhealable'; }
         else if (state.caries === 0) { cariesText = '🟢 Здоров'; cariesClass='status-good'; }
         else if (state.caries === 1) { cariesText = '🟡 Начальный кариес'; cariesClass='status-warn'; }
         else if (state.caries === 2) { cariesText = '🟠 Средний кариес'; cariesClass='status-warn'; }
         else { cariesText = '🔴 Глубокий кариес'; cariesClass='status-bad'; }
 
         const anes = state.anesthetized
-            ? `<span class="val status-treat">💉 Анестезирован</span>`
+            ? `<span class="val status-treat">💉 Анестезирован (${getAnestheticName(state.anestheticType || game.selectedAnesthetic)})</span>`
             : `<span class="val status-bad">❌ Без анестезии</span>`;
         const antis = state.antiseptic
             ? `<span class="val status-good">🧴 Обработан</span>`
             : `<span class="val status-warn">❌ Не обработан</span>`;
 
-        tooltipTitle.textContent = `Зуб ${state.fdi} — ${state.name}`;
+        tooltipTitle.textContent = state.empty
+            ? `Место ${state.fdi} — пусто`
+            : `Зуб ${state.fdi} — ${state.name}`;
         tooltipContent.innerHTML = `
             <div class="row"><span class="label">Тип:</span><span class="val">${
                 state.type==='incisor'?'Резец':state.type==='canine'?'Клык':state.type==='premolar'?'Премоляр':'Моляр'
             }</span></div>
             <div class="row"><span class="label">Квадрант:</span><span class="val">${state.quadrant}</span></div>
             <div class="row"><span class="label">Состояние:</span><span class="val ${cariesClass}">${cariesText}</span></div>
-            <div class="row"><span class="label">Анестезия:</span>${anes}</div>
-            <div class="row"><span class="label">Антисептик:</span>${antis}</div>
+            ${!state.empty ? `<div class="row"><span class="label">Анестезия:</span>${anes}</div>` : ''}
+            ${!state.empty && !state.unhealable ? `<div class="row"><span class="label">Антисептик:</span>${antis}</div>` : ''}
             <div class="row" style="margin-top:6px;border-top:1px solid #5a4a3a;padding-top:6px;">
                 <span class="label">FDI:</span><span class="val">${state.fdi}</span>
             </div>
@@ -1152,22 +1684,146 @@
         tooltipEl.style.display = 'block';
     }
 
+    // ========== ТАЙМЕР АНЕСТЕЗИИ ==========
+    function startAnesthesiaTimer(toothId) {
+        if (game.anesthesiaTimers.has(toothId)) {
+            clearTimeout(game.anesthesiaTimers.get(toothId).timerId);
+        }
+        const state = toothStates.get(toothId);
+        const anesType = state.anestheticType || game.selectedAnesthetic;
+        const duration = ANESTHETICS[anesType].duration * 1000;
+
+        const endTime = Date.now() + duration;
+        const timerId = setTimeout(() => {
+            const s = toothStates.get(toothId);
+            if (s) {
+                s.anesthetized = false;
+                s.anestheticType = null;
+                updateToothElement(toothId);
+            }
+            game.anesthesiaTimers.delete(toothId);
+            if (game.activeTimerTooth === toothId) {
+                game.activeTimerTooth = null;
+                timerBar.style.display = 'none';
+                clearInterval(game.timerInterval);
+                game.timerInterval = null;
+            }
+            showToast(`⏰ Анестезия на зубе ${s ? s.fdi : ''} закончилась!`, false);
+        }, duration);
+
+        game.anesthesiaTimers.set(toothId, { timerId, endTime });
+
+        game.activeTimerTooth = toothId;
+        timerBar.style.display = 'block';
+        if (game.timerInterval) clearInterval(game.timerInterval);
+        game.timerInterval = setInterval(() => {
+            const t = game.anesthesiaTimers.get(game.activeTimerTooth);
+            if (!t) { timerBar.style.display = 'none'; return; }
+            const left = Math.max(0, t.endTime - Date.now());
+            const total = ANESTHETICS[toothStates.get(game.activeTimerTooth)?.anestheticType || anesType].duration * 1000;
+            const pct = (left / total) * 100;
+            timerFill.style.width = pct + '%';
+            if (left <= 0) {
+                timerBar.style.display = 'none';
+                clearInterval(game.timerInterval);
+                game.timerInterval = null;
+            }
+        }, 100);
+    }
+
+    // ========== КЛИК ПО ЗУБУ ==========
     function handleToothClick(toothId) {
+        if (!game.gameActive) return;
         const state = toothStates.get(toothId);
         if (!state) return;
-        if (state.treated) { showToast(`Зуб ${state.fdi} уже вылечен`, false); return; }
         if (!currentTool) { showToast('Сначала выберите инструмент', false); return; }
 
+        // === УДАЛЕНИЕ ===
+        if (currentTool === 'extract') {
+            if (state.empty) { showToast('Здесь уже пусто', false); return; }
+            if (state.filled) { showToast('Сначала удалите пломбу', false); return; }
+            if (!state.unhealable) { showToast('Этот зуб можно вылечить!', false); playSound('error'); return; }
+            if (!state.anesthetized) { showToast('Сначала введите анестезию!', false); playSound('error'); return; }
+            // Удаляем
+            state.empty = true;
+            state.unhealable = false;
+            state.caries = 0;
+            state.treated = false;
+            state.drilled = false;
+            state.antiseptic = false;
+            state.anesthetized = false;
+            state.anestheticType = null;
+            state.filled = false;
+            updateToothElement(toothId);
+            playSound('extract');
+            setStatus('Зуб удалён. Образовалось пустое место.');
+            showToast('🦷 Зуб удалён! Теперь здесь пусто', true);
+            return;
+        }
+
+        // === ПЛОМБА ===
+        if (currentTool === 'fill') {
+            if (!state.empty) { showToast('Пломбу можно поставить только в пустое место', false); playSound('error'); return; }
+            if (state.filled) { showToast('Здесь уже стоит пломба', false); return; }
+            if (game.money < FILL_PRICE) { showToast(`Недостаточно денег! Нужно 💰 ${FILL_PRICE}`, false); playSound('error'); return; }
+            if (!state.anesthetized) {
+                showToast('Сначала введите анестезию в это место!', false);
+                playSound('error');
+                return;
+            }
+            if (!state.antiseptic) {
+                showToast('Сначала обработайте место антисептиком!', false);
+                playSound('error');
+                return;
+            }
+            game.money -= FILL_PRICE;
+            state.filled = true;
+            state.empty = false;
+            state.treated = true;
+            updateToothElement(toothId);
+            updateCounters();
+            playSound('fill');
+            setStatus('Пломба установлена');
+            showToast('⚙️ Пломба установлена! Место восстановлено', true);
+            game.treatedCount++;
+            updateCounters();
+            checkLevelComplete();
+            return;
+        }
+
+        // === АНЕСТЕЗИЯ ===
         if (currentTool === 'anesthesia') {
-            if (state.anesthetized) { showToast('Зуб уже анестезирован', false); return; }
+            // Пустое место, уже запломбированное — анестезия не нужна
+            if (state.empty && state.filled) { showToast('Это место уже запломбировано', false); return; }
+            // Уже анестезировано
+            if (state.anesthetized) { showToast('Уже анестезировано', false); return; }
+            // Обычный вылеченный зуб — не трогаем
+            if (!state.empty && state.treated) { showToast('Зуб уже вылечен', false); return; }
+
+            const stock = game.anestheticStock[game.selectedAnesthetic] || 0;
+            if (stock <= 0) {
+                showToast(`Нет ${getAnestheticName(game.selectedAnesthetic)}! Купите анестетик.`, false);
+                playSound('error');
+                return;
+            }
+            game.anestheticStock[game.selectedAnesthetic] = stock - 1;
             state.anesthetized = true;
-            anesthesiaUsed++;
-            anesthesiaCountSpan.textContent = anesthesiaUsed;
+            state.anestheticType = game.selectedAnesthetic;
+            game.anesthesiaUsed++;
+            updateCounters();
             updateToothElement(toothId);
             playSound('anesthesia');
-            setStatus(`Введён анестетик: ${getAnestheticName(selectedAnesthetic)}`);
-            showToast(`💉 Анестезия введена (${getAnestheticName(selectedAnesthetic)})`);
-        } else if (currentTool === 'drill') {
+            setStatus(`Введён анестетик: ${getAnestheticName(game.selectedAnesthetic)}`);
+            showToast(`💉 Анестезия введена (${getAnestheticName(game.selectedAnesthetic)})`);
+            startAnesthesiaTimer(toothId);
+            return;
+        }
+
+        // === БОРМАШИНА ===
+        if (currentTool === 'drill') {
+            if (state.empty) { showToast('Это пустое место, сверлить нечего', false); return; }
+            if (state.unhealable) { showToast('Этот зуб невылечиваемый — его нужно удалить!', false); playSound('error'); return; }
+            if (state.treated) { showToast('Зуб уже вылечен', false); return; }
             if (!state.anesthetized) { showToast('Сначала введите анестезию!', false); playSound('error'); return; }
             if (state.caries === 0) { showToast('Зуб здоров, нечего сверлить', false); return; }
             if (state.drilled) { showToast('Полость уже обработана бормашиной', false); return; }
@@ -1177,7 +1833,25 @@
             playSound('drill');
             setStatus('Бормашина: кариозные ткани удалены. Требуется антисептик');
             showToast('🔩 Кариес удалён. Обработайте антисептиком');
-        } else if (currentTool === 'antiseptic') {
+            return;
+        }
+
+        // === АНТИСЕПТИК ===
+        if (currentTool === 'antiseptic') {
+            if (state.empty && !state.filled) {
+                // Обработка пустого места под пломбу
+                if (state.antiseptic) { showToast('Уже обработано', false); return; }
+                if (!state.anesthetized) { showToast('Сначала введите анестезию в это место!', false); playSound('error'); return; }
+                state.antiseptic = true;
+                updateToothElement(toothId);
+                playSound('antiseptic');
+                setStatus('Место обработано антисептиком. Можно ставить пломбу');
+                showToast('🧴 Место обработано. Теперь можно ставить пломбу', true);
+                return;
+            }
+            if (state.empty) { showToast('Пустое место — нечего обрабатывать', false); return; }
+            if (state.unhealable) { showToast('Этот зуб невылечиваемый — его нужно удалить!', false); playSound('error'); return; }
+            if (state.treated) { showToast('Зуб уже вылечен', false); return; }
             if (state.caries > 0) { showToast('Сначала удалите кариес бормашиной!', false); playSound('error'); return; }
             if (!state.drilled) { showToast('Сначала просверлите зуб бормашиной!', false); playSound('error'); return; }
             if (state.antiseptic) { showToast('Уже обработан антисептиком', false); return; }
@@ -1187,7 +1861,10 @@
             playSound('antiseptic');
             setStatus('Обработка антисептиком завершена');
             showToast('🧴 Обработано антисептиком. Зуб вылечен!', true);
-            updateTreatedCount();
+            game.treatedCount++;
+            updateCounters();
+            checkLevelComplete();
+            return;
         }
     }
 
@@ -1196,37 +1873,62 @@
         if (!el) return;
         const state = toothStates.get(toothId);
         if (!state) return;
-        el.classList.toggle('treated', state.treated);
+        el.classList.toggle('treated', state.treated && !state.empty);
         el.classList.toggle('anesthetized', state.anesthetized);
-        el.dataset.caries = state.treated ? '0' : state.caries;
-        if (state.drilled && !state.treated) {
-            el.dataset.drilled = '1';
-        } else {
-            delete el.dataset.drilled;
+        el.classList.toggle('empty', state.empty && !state.filled);
+        el.classList.toggle('filled', state.filled);
+        el.classList.toggle('unhealable', state.unhealable && !state.empty && !state.treated);
+        el.dataset.caries = (state.empty || state.treated) ? '0' : state.caries;
+        if (state.drilled && !state.treated && !state.empty) el.dataset.drilled = '1';
+        else delete el.dataset.drilled;
+    }
+
+    function checkLevelComplete() {
+        if (game.treatedCount >= game.patientsGoal) {
+            game.gameActive = false;
+            const lvl = LEVELS[game.currentLevel];
+            game.money += lvl.reward;
+            updateCounters();
+            playSound('coin');
+            setTimeout(() => {
+                showToast(`🎉 Уровень пройден! Награда: 💰 ${lvl.reward}`, true);
+                game.completedLevels.add(game.currentLevel);
+                if (game.currentLevel + 1 < LEVELS.length && game.unlockedLevels <= game.currentLevel + 1) {
+                    game.unlockedLevels = game.currentLevel + 2;
+                }
+                renderLevels();
+                setTimeout(() => {
+                    levelScreen.style.display = 'flex';
+                    renderLevels();
+                }, 2000);
+            }, 500);
         }
     }
 
+    // ========== РЕНДЕР ЗУБОВ ==========
     function renderTeeth() {
         upperRowEl.innerHTML = '';
         lowerRowEl.innerHTML = '';
         upperOrder.forEach(t => upperRowEl.appendChild(createToothElement(t.id)));
         lowerOrder.forEach(t => lowerRowEl.appendChild(createToothElement(t.id)));
-        updateTreatedCount();
     }
 
-    // ========== УПРАВЛЕНИЕ ==========
+    // ========== УПРАВЛЕНИЕ ИНСТРУМЕНТАМИ ==========
     const btnAnesthesia = document.getElementById('apply-anesthesia');
     const btnDrill = document.getElementById('tool-drill');
     const btnAntiseptic = document.getElementById('tool-antiseptic');
+    const btnExtract = document.getElementById('tool-extract');
+    const btnFill = document.getElementById('tool-fill');
     const btnReset = document.getElementById('tool-reset');
-    const anestheticSelect = document.getElementById('anesthetic-select');
+    const btnBuy = document.getElementById('buy-anesthetic');
+    const btnBack = document.getElementById('back-to-levels');
 
     function setActiveTool(tool) {
-        [btnAnesthesia, btnDrill, btnAntiseptic].forEach(b => b.classList.remove('active'));
+        [btnAnesthesia, btnDrill, btnAntiseptic, btnExtract, btnFill].forEach(b => b.classList.remove('active'));
         if (tool === 'anesthesia') {
             btnAnesthesia.classList.add('active');
             currentTool = 'anesthesia';
-            setStatus(`Инструмент: Анестезия (${getAnestheticName(selectedAnesthetic)})`);
+            setStatus(`Инструмент: Анестезия (${getAnestheticName(game.selectedAnesthetic)})`);
         } else if (tool === 'drill') {
             btnDrill.classList.add('active');
             currentTool = 'drill';
@@ -1234,7 +1936,15 @@
         } else if (tool === 'antiseptic') {
             btnAntiseptic.classList.add('active');
             currentTool = 'antiseptic';
-            setStatus('Инструмент: Антисептик (после бормашины)');
+            setStatus('Инструмент: Антисептик (после бормашины / для пустого места)');
+        } else if (tool === 'extract') {
+            btnExtract.classList.add('active');
+            currentTool = 'extract';
+            setStatus('Инструмент: Удаление (только невылечиваемые зубы, нужна анестезия)');
+        } else if (tool === 'fill') {
+            btnFill.classList.add('active');
+            currentTool = 'fill';
+            setStatus(`Инструмент: Пломба (💰 ${FILL_PRICE}, нужна анестезия и антисептик)`);
         } else {
             currentTool = null;
             setStatus('Выберите инструмент');
@@ -1244,52 +1954,147 @@
     btnAnesthesia.addEventListener('click', () => { setActiveTool('anesthesia'); playSound('click'); });
     btnDrill.addEventListener('click', () => { setActiveTool('drill'); playSound('click'); });
     btnAntiseptic.addEventListener('click', () => { setActiveTool('antiseptic'); playSound('click'); });
+    btnExtract.addEventListener('click', () => { setActiveTool('extract'); playSound('click'); });
+    btnFill.addEventListener('click', () => { setActiveTool('fill'); playSound('click'); });
+
+    btnBuy.addEventListener('click', () => {
+        const anes = game.selectedAnesthetic;
+        const info = ANESTHETICS[anes];
+        if (game.money < info.price) {
+            showToast(`Недостаточно денег! Нужно 💰 ${info.price}`, false);
+            playSound('error');
+            return;
+        }
+        game.money -= info.price;
+        game.anestheticStock[anes] = (game.anestheticStock[anes] || 0) + 1;
+        updateCounters();
+        updateAnestheticInfo();
+        playSound('coin');
+        showToast(`Куплен ${info.name} за 💰 ${info.price}`, true);
+    });
 
     btnReset.addEventListener('click', () => {
         playSound('click');
-        const all = [...upperOrder, ...lowerOrder];
-        toothStates.forEach((state, id) => {
-            const tooth = all.find(t => t.id === id);
-            if (tooth) {
-                let caries = 0;
-                const rand = Math.random();
-                if (rand < 0.25) caries = 0;
-                else if (rand < 0.55) caries = 1;
-                else if (rand < 0.82) caries = 2;
-                else caries = 3;
-                const treated = Math.random() < 0.12;
-                if (treated) caries = 0;
-                state.caries = caries;
-                state.treated = treated;
-                state.anesthetized = false;
-                state.antiseptic = false;
-                state.drilled = false;
-            }
-        });
-        anesthesiaUsed = 0;
-        anesthesiaCountSpan.textContent = '0';
+        generateToothData(game.currentLevel);
+        game.anesthesiaUsed = 0;
+        game.treatedCount = 0;
+        game.anesthesiaTimers.forEach(t => clearTimeout(t.timerId));
+        game.anesthesiaTimers.clear();
+        if (game.timerInterval) clearInterval(game.timerInterval);
+        game.timerInterval = null;
+        game.activeTimerTooth = null;
+        timerBar.style.display = 'none';
         renderTeeth();
         setActiveTool(null);
+        updateCounters();
         setStatus('Симулятор сброшен');
         showToast('Все зубы сброшены', true);
     });
 
+    btnBack.addEventListener('click', () => {
+        playSound('click');
+        game.gameActive = false;
+        game.anesthesiaTimers.forEach(t => clearTimeout(t.timerId));
+        game.anesthesiaTimers.clear();
+        if (game.timerInterval) clearInterval(game.timerInterval);
+        game.timerInterval = null;
+        timerBar.style.display = 'none';
+        levelScreen.style.display = 'flex';
+        renderLevels();
+    });
+
+    // ========== ВЫБОР АНЕСТЕТИКА ==========
+    function getAnestheticName(k) {
+        return ANESTHETICS[k] ? ANESTHETICS[k].name : k;
+    }
+
+    function updateAnestheticSelect() {
+        const lvl = LEVELS[game.currentLevel];
+        const unlocked = lvl.unlockedAnesthetics;
+        anestheticSelect.innerHTML = '';
+        ANESTHETIC_ORDER.forEach(key => {
+            const opt = document.createElement('option');
+            opt.value = key;
+            const info = ANESTHETICS[key];
+            const isUnlocked = unlocked.includes(key);
+            const stock = game.anestheticStock[key] || 0;
+            if (isUnlocked) {
+                opt.textContent = `${info.name} (⏱${info.duration}с, 💰${info.price}) [${stock}]`;
+            } else {
+                opt.textContent = `🔒 ${info.name} (недоступен)`;
+                opt.disabled = true;
+            }
+            if (key === game.selectedAnesthetic) opt.selected = true;
+            anestheticSelect.appendChild(opt);
+        });
+        updateAnestheticInfo();
+    }
+
+    function updateAnestheticInfo() {
+        const key = game.selectedAnesthetic;
+        const info = ANESTHETICS[key];
+        const stock = game.anestheticStock[key] || 0;
+        const lvl = LEVELS[game.currentLevel];
+        const isUnlocked = lvl.unlockedAnesthetics.includes(key);
+        if (!isUnlocked) {
+            anestheticInfo.textContent = '🔒 Недоступен на этом уровне';
+            btnBuy.disabled = true;
+            return;
+        }
+        anestheticInfo.innerHTML = `⏱ Длительность: ${info.duration}с · 💰 Цена: ${info.price} · В наличии: ${stock}`;
+        btnBuy.textContent = `Купить (💰 ${info.price})`;
+        btnBuy.disabled = false;
+    }
+
     anestheticSelect.addEventListener('change', (e) => {
-        selectedAnesthetic = e.target.value;
+        game.selectedAnesthetic = e.target.value;
+        updateAnestheticInfo();
         if (currentTool === 'anesthesia') {
-            setStatus(`Инструмент: Анестезия (${getAnestheticName(selectedAnesthetic)})`);
+            setStatus(`Инструмент: Анестезия (${getAnestheticName(game.selectedAnesthetic)})`);
         }
     });
 
-    renderTeeth();
-    setActiveTool(null);
+    // ========== СТАРТ УРОВНЯ ==========
+    function startLevel(levelIdx) {
+        game.currentLevel = levelIdx;
+        const lvl = LEVELS[levelIdx];
+        game.money = lvl.startMoney;
+        game.patientsGoal = lvl.patientsGoal;
+        game.treatedCount = 0;
+        game.anesthesiaUsed = 0;
+        game.anestheticStock = { ...lvl.startAnesthetics };
+        game.selectedAnesthetic = lvl.unlockedAnesthetics[0];
+        game.gameActive = true;
+        game.anesthesiaTimers.forEach(t => clearTimeout(t.timerId));
+        game.anesthesiaTimers.clear();
+        if (game.timerInterval) clearInterval(game.timerInterval);
+        game.timerInterval = null;
+        game.activeTimerTooth = null;
+        timerBar.style.display = 'none';
+
+        ANESTHETIC_ORDER.forEach(k => {
+            if (!(k in game.anestheticStock)) game.anestheticStock[k] = 0;
+        });
+
+        hospitalTitle.textContent = lvl.name;
+        generateToothData(levelIdx);
+        renderTeeth();
+        updateAnestheticSelect();
+        updateCounters();
+        setActiveTool(null);
+        levelScreen.style.display = 'none';
+        setStatus(`Добро пожаловать в ${lvl.name} (${lvl.city})`);
+        showToast(`🏥 ${lvl.name} — вылечите ${lvl.patientsGoal} пациентов!`, true);
+    }
+
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
+    renderLevels();
+    updateCounters();
 
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.tooth')) tooltipEl.style.display = 'none';
     });
-    document.body.addEventListener('click', () => {
-        getAudioContext();
-    }, { once: true });
+    document.body.addEventListener('click', () => { getAudioContext(); }, { once: true });
 })();
 </script>
 </body>
